@@ -1,0 +1,13 @@
+hasData,relatedQueries,geo,query,date,isPartial,formattedValue,value
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-07-04,False,62,62
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-07-11,False,66,66
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-07-18,False,63,63
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-07-25,False,67,67
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-08-01,False,67,67
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-08-08,False,71,71
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-08-15,False,72,72
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-08-22,False,76,76
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-08-29,False,78,78
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-09-05,False,83,83
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-09-12,False,79,79
+True,"['bakery near me', 'best bakery in mumbai', 'bakery services', 'affordable bakery', 'professional bakery']",mumbai,bakery,2025-09-19,False,81,81

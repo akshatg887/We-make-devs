@@ -1,0 +1,13 @@
+hasData,isPartial,date,geo,relatedQueries,value,query,formattedValue
+True,False,2025-07-04,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",42,stationary,42
+True,False,2025-07-11,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",45,stationary,45
+True,False,2025-07-18,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",42,stationary,42
+True,False,2025-07-25,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",44,stationary,44
+True,False,2025-08-01,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",51,stationary,51
+True,False,2025-08-08,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",50,stationary,50
+True,False,2025-08-15,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",51,stationary,51
+True,False,2025-08-22,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",53,stationary,53
+True,False,2025-08-29,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",58,stationary,58
+True,False,2025-09-05,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",55,stationary,55
+True,False,2025-09-12,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",59,stationary,59
+True,False,2025-09-19,pune,"['stationary near me', 'best stationary in pune', 'stationary services', 'affordable stationary', 'professional stationary']",59,stationary,59

@@ -1,0 +1,13 @@
+hasData,isPartial,date,geo,relatedQueries,value,query,formattedValue
+True,False,2025-07-04,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",55,coffee shop,55
+True,False,2025-07-11,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",47,coffee shop,47
+True,False,2025-07-18,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",50,coffee shop,50
+True,False,2025-07-25,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",49,coffee shop,49
+True,False,2025-08-01,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",62,coffee shop,62
+True,False,2025-08-08,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",46,coffee shop,46
+True,False,2025-08-15,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",58,coffee shop,58
+True,False,2025-08-22,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",53,coffee shop,53
+True,False,2025-08-29,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",55,coffee shop,55
+True,False,2025-09-05,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",51,coffee shop,51
+True,False,2025-09-12,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",51,coffee shop,51
+True,False,2025-09-19,pune,"['coffee shop near me', 'best coffee shop in pune', 'coffee shop services', 'affordable coffee shop', 'professional coffee shop']",57,coffee shop,57

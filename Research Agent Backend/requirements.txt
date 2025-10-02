@@ -1,0 +1,17 @@
+langgraph
+apify-client
+cerebras-cloud-sdk
+pydantic
+python-dotenv
+pandas
+matplotlib
+seaborn
+requests
+asyncio
+typing-extensions
+streamlit
+plotly
+fastapi
+uvicorn
+httpx
+groq

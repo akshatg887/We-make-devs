@@ -1,0 +1,20 @@
+price_level,open_now,user_ratings_total,phone_number,latitude,description,address,rating,types,website,hours,name,longitude
+2,True,163,+91 9899257808,22.36491460004984,Professional bakery services in ,"654 Commercial Complex, ",4.0,"['bakery', 'local_business']",https://www.bakery1.com,9:00 AM - 6:00 PM,Daily Bread 1,78.61835173736657
+3,False,167,+91 9873912607,22.33737555109557,Professional bakery services in ,"123 Main Road, ",4.3,"['bakery', 'local_business']",https://www.bakery2.com,9:00 AM - 6:00 PM,Artisan Bakes 2,78.66489553517354
+2,True,39,+91 9046792283,22.271533743320727,Professional bakery services in ,"159 City Center, ",4.2,"['bakery', 'local_business']",https://www.bakery3.com,9:00 AM - 6:00 PM,Golden Crust 3,78.62006534704673
+3,False,208,+91 9481619953,22.319696982011312,Professional bakery services in ,"654 Commercial Complex, ",4.5,"['bakery', 'local_business']",https://www.bakery4.com,9:00 AM - 6:00 PM,Morning Fresh 4,78.69365373762697
+4,False,93,+91 9187654105,22.411710843496248,Professional bakery services in ,"987 Business District, ",4.2,"['bakery', 'local_business']",https://www.bakery5.com,9:00 AM - 6:00 PM,Fresh Bread 5,78.60671846715324
+3,True,480,+91 9400381852,22.36153069290981,Professional bakery services in ,"456 Central Avenue, ",4.6,"['bakery', 'local_business']",https://www.bakery6.com,9:00 AM - 6:00 PM,Daily Bread 6,78.64166555502376
+3,False,351,+91 9873794186,22.380160401136624,Professional bakery services in ,"789 Market Street, ",4.8,"['bakery', 'local_business']",https://www.bakery7.com,9:00 AM - 6:00 PM,Fresh Bread 7,78.61824740327026
+3,True,114,+91 9827719033,22.428940546249073,Professional bakery services in ,"456 Central Avenue, ",4.4,"['bakery', 'local_business']",https://www.bakery8.com,9:00 AM - 6:00 PM,Fresh Bread 8,78.70030031419957
+2,False,140,+91 9667849890,22.32856002500926,Professional bakery services in ,"987 Business District, ",4.4,"['bakery', 'local_business']",https://www.bakery9.com,9:00 AM - 6:00 PM,Daily Bread 9,78.72112922842904
+2,False,271,+91 9931146747,22.428321445208564,Professional bakery services in ,"987 Business District, ",4.2,"['bakery', 'local_business']",https://www.bakery10.com,9:00 AM - 6:00 PM,Artisan Bakes 10,78.62982032116965
+2,False,152,+91 9050732717,22.33964773082255,Professional bakery services in ,"123 Main Road, ",3.9,"['bakery', 'local_business']",https://www.bakery11.com,9:00 AM - 6:00 PM,Crust & Crumb 11,78.7003278127003
+1,False,294,+91 9370448987,22.317263791720812,Professional bakery services in ,"123 Main Road, ",4.2,"['bakery', 'local_business']",https://www.bakery12.com,9:00 AM - 6:00 PM,Fresh Bread 12,78.62221673845129
+4,True,28,+91 9656565832,22.32107785105796,Professional bakery services in ,"987 Business District, ",3.9,"['bakery', 'local_business']",https://www.bakery13.com,9:00 AM - 6:00 PM,Crust & Crumb 13,78.73839027664353
+2,False,29,+91 9888345090,22.421897833434187,Professional bakery services in ,"753 Shopping Area, ",4.2,"['bakery', 'local_business']",https://www.bakery14.com,9:00 AM - 6:00 PM,Fresh Bread 14,78.72221704420907
+1,False,207,+91 9631453046,22.41656297731495,Professional bakery services in ,"789 Market Street, ",3.9,"['bakery', 'local_business']",https://www.bakery15.com,9:00 AM - 6:00 PM,Oven Fresh 15,78.61043235707021
+4,False,110,+91 9000936926,22.42578675251306,Professional bakery services in ,"456 Central Avenue, ",4.4,"['bakery', 'local_business']",https://www.bakery16.com,9:00 AM - 6:00 PM,Morning Fresh 16,78.65994477730855
+1,True,181,+91 9261338929,22.42077813229523,Professional bakery services in ,"456 Central Avenue, ",4.2,"['bakery', 'local_business']",https://www.bakery17.com,9:00 AM - 6:00 PM,Fresh Bread 17,78.67310545184303
+2,True,256,+91 9393469453,22.305896621411126,Professional bakery services in ,"321 Downtown Area, ",4.5,"['bakery', 'local_business']",https://www.bakery18.com,9:00 AM - 6:00 PM,Crust & Crumb 18,78.6012165331489
+2,True,195,+91 9534318523,22.286100664633917,Professional bakery services in ,"789 Market Street, ",4.4,"['bakery', 'local_business']",https://www.bakery19.com,9:00 AM - 6:00 PM,Daily Bread 19,78.67401249566048
