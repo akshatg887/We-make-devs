@@ -1,0 +1,77 @@
+/* components/RadialBlobs.css */
+
+.radial-blobs-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Ensures blobs don't go outside */
+  z-index: 0; /* Keep it behind other content */
+  pointer-events: none; /* Make sure they don't interfere with clicks */
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%; /* Makes it circular */
+  opacity: 0.6; /* Semi-transparent */
+  filter: blur(100px); /* Soft, blurry effect */
+  animation: floatUpAndDown 10s ease-in-out infinite alternate; /* Gentle animation */
+}
+
+/* Specific blob styling for colors, sizes, and initial positions */
+
+.blob-1 {
+  background: radial-gradient(circle, #E0F2FE 0%, #CCEEFB 100%); /* Lighter blue */
+  width: 400px;
+  height: 400px;
+  top: 10%;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.blob-2 {
+  background: radial-gradient(circle, #CCEEFB 0%, #B0D9EE 100%); /* Your main color, slightly darker fade */
+  width: 500px;
+  height: 500px;
+  bottom: 20%;
+  right: 10%;
+  animation-delay: 2s;
+}
+
+.blob-3 {
+  background: radial-gradient(circle, #CCEEFB 0%, #D8F2FF 100%); /* Mix of your color and a very light blue */
+  width: 300px;
+  height: 300px;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  animation-delay: 4s;
+}
+
+.blob-4 {
+  background: radial-gradient(circle, #F0F8FF 0%, #E0F2FE 100%); /* Very light, almost white blue */
+  width: 600px;
+  height: 600px;
+  top: 5%;
+  right: 25%;
+  animation-delay: 6s;
+}
+
+/* Animation for the blobs */
+@keyframes floatUpAndDown {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -20px) scale(1.05); } /* Move and slightly grow */
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .blob {
+    filter: blur(60px); /* Less blur on smaller screens for better performance */
+  }
+  .blob-1 { width: 250px; height: 250px; top: 15%; left: 5%; }
+  .blob-2 { width: 300px; height: 300px; bottom: 10%; right: 5%; }
+  .blob-3 { width: 200px; height: 200px; top: 40%; left: 70%; }
+  .blob-4 { width: 350px; height: 350px; top: 0%; right: 15%; }
+}
