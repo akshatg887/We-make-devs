@@ -1,26 +1,53 @@
+/* app/globals.css */
+
+/* Import Poppins font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --primary-color: #2c6482; /* Blue 500 */
+  --primary-hover-color: #07183c; /* Blue 600 */
+  --dark-color: #1F2937; /* Gray 800 */
+  --text-color: #374151; /* Gray 700 */
+  --text-light: #6B7281; /* Gray 500 */
+  --background-light: #F0F5FF; /* A very light blue */
+  --white-color: #FFFFFF;
+  --border-color: #E5E7EB; /* Gray 200 */
+  
+  /* Set global font */
+  --font-sans: 'Poppins', sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  color: var(--text-color);
+  background-color: var(--white-color); /* Body is white, sections can be light blue */
+  margin:0;
+  padding: 0;
+}
+
+/* Shared Button Styles */
+.btn {
+  border-radius: 9999px; /* Pill shape */
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover-color);
+  transform: translateY(-2px);
 }
