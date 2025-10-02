@@ -1,0 +1,127 @@
+# README.yml
+name: CSV Insights Chat API
+description: >
+  FastAPI service that accepts CSV uploads, produces dataset-level JSON insights
+  (insights, anomalies, charts, recommendations) using Cerebras / Qwen LLM,
+  and supports session-based follow-up chat (free-flow or JSON on demand).
+version: "1.0.0"
+maintainer:
+  name: Your Name
+  email: you@example.com
+
+prerequisites:
+  - Python 3.10+ (tested on 3.11)
+  - Git
+  - A Cerebras API key (environment variable CEREBRAS_API_KEY)
+  - Optional: virtualenv or venv
+
+quick_start:
+  - step: Clone repo
+    cmd: |
+      git clone https://github.com/YOUR_USER/YOUR_REPO.git
+      cd YOUR_REPO
+  - step: Create & activate env
+    cmd: |
+      python -m venv .venv
+      source .venv/bin/activate    # macOS / Linux
+      .venv\Scripts\activate       # Windows PowerShell
+  - step: Install dependencies
+    cmd: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+  - step: Create .env
+    notes: |
+      Create a .env file at the project root containing required environment variables:
+      - CEREBRAS_API_KEY=your_key_here
+      - CEREBRAS_MODEL=qwen-3-235b-a22b-instruct-2507  # optional
+  - step: Run server (development)
+    cmd: |
+      uvicorn app_analyze:app --reload --port 8000
+
+environment_variables:
+  - CEREBRAS_API_KEY: "Cerebras API key (required)"
+  - CEREBRAS_MODEL: "Optional model id (defaults provided in code)"
+  - FASTAPI_PORT: "Optional override for port (default 8000)"
+
+endpoints:
+  - path: /upload_csv
+    method: POST
+    description: Upload a CSV file. Returns session_id and JSON fields:
+      insights, anomalies, charts (specs only), recommendations, raw_model_output.
+    example_curl: |
+      curl -X POST "http://127.0.0.1:8000/upload_csv" \
+        -H "accept: application/json" \
+        -H "Content-Type: multipart/form-data" \
+        -F "file=@sample_sales.csv;type=text/csv"
+  - path: /chat
+    method: POST
+    description: Continue a conversation in a session. Can be free-flow text or request JSON.
+    params:
+      - session_id (form): session id returned from /upload_csv
+      - user_message (form): user's question
+    example_curl: |
+      curl -X POST "http://127.0.0.1:8000/chat" \
+        -H "accept: application/json" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        -d "session_id=SESSION_ID&user_message=Give me recommendations"
+  - path: /health
+    method: GET
+    description: Health check, returns {"status":"ok"}
+
+design_notes:
+  - Session model: server keeps in-memory SESSIONS: { session_id -> {"df": DataFrame, "chat_history": [...]} }.
+  - Upload flow:
+      1. Parse CSV robustly (attempt encodings fallback).
+      2. Build compact summary and run LLM with strict JSON prompt.
+      3. Save assistant JSON + raw response in session_history.
+  - Chat flow:
+      - Free-flow: use the stored chat_history for context and allow text responses.
+      - Structured responses: parse JSON only when user explicitly asks for `insights`/`json`.
+  - Chart rendering: removed from main flow (service returns chart *specs* only). No server-side plotting by default.
+
+integration:
+  - frontend:
+      - After /upload_csv you get session_id and parsed JSON. Display insights/recommendations directly.
+      - For chat, send session_id + user_message to /chat. Display `response` free text. If `parsed` is present use structured display.
+  - backend:
+      - If you need persistence across restarts, replace in-memory SESSIONS with Redis or DB (store CSV path and history).
+      - For multi-instance deployments, use shared storage and session db.
+
+security_and_safety:
+  - Do NOT execute arbitrary code returned by LLM in production. This project was updated to not run `analysis_code`.
+  - Keep CEREBRAS_API_KEY in .env or CI secrets (never commit to repo).
+  - Rate-limit API endpoints or protect with authentication for production.
+  - Sanitize uploads and enforce size limits on CSV files.
+
+testing:
+  - unit tests: add pytest tests for utils (compact_summary, parse_json).
+  - manual: use provided curl examples or FastAPI docs at `http://127.0.0.1:8000/docs`.
+
+troubleshooting:
+  - Internal Server Error:
+      - Check server logs; common causes: missing env var, NameError from missing helper functions, or JSON parsing failure.
+  - Model replies as plain text while you expect JSON:
+      - Ensure initial upload used strict JSON-only system prompt and `USER_PROMPT_TEMPLATE`.
+      - For chat, only attempt JSON parse when user asked for structured output.
+  - `plt.show()` windows appeared previously:
+      - This was due to earlier code executing LLM-returned plotting code. The current recommended code no longer executes LLM code.
+  - If Cerebras SDK errors, verify CEREBRAS_API_KEY and network connectivity.
+
+git_workflow:
+  - Add project folder to repo:
+      - git add your_project_folder/
+      - git commit -m "Add project folder"
+      - git push origin main
+  - If using a branch:
+      - git checkout -b add-csv-insights
+      - git push origin add-csv-insights
+      - Open PR on GitHub.
+
+ci_cd:
+  - Add basic GitHub Actions workflow `.github/workflows/ci.yml` to run tests and linting.
+  - Protect main branch and require PR reviews for merges.
+
+notes_and_references:
+  - Keep `cerebras_csv_insights.py` as dev CLI for prompt tuning; keep production code in `app_analyze.py`.
+  - Consider migrating session store to Redis before production.
+license: MIT

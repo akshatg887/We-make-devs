@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.so
+*.egg-info/
+.eggs/
+*.egg
+*.log
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter notebooks
+.ipynb_checkpoints
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+__snapshots__/
+
+# FastAPI/UVicorn logs
+*.db
+*.sqlite3
+*.sqlite
+logs/
+
+# Frontend (if React/Next.js/Vite present)
+node_modules/
+dist/
+build/
+.npm/
+.npm-cache/
+
+# Environment / Config
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+.cache
+
+# Docker
+*.pid
+*.pid.lock
