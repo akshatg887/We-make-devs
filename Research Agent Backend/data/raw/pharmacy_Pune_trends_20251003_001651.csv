@@ -1,0 +1,107 @@
+date,formatted_value,value,query,has_data
+"Sep 29 – Oct 5, 2024",pharmacy,88,pharmacy,True
+"Oct 6 – 12, 2024",pharmacy,86,pharmacy,True
+"Oct 13 – 19, 2024",pharmacy,87,pharmacy,True
+"Oct 20 – 26, 2024",pharmacy,93,pharmacy,True
+"Oct 27 – Nov 2, 2024",pharmacy,70,pharmacy,True
+"Nov 3 – 9, 2024",pharmacy,81,pharmacy,True
+"Nov 10 – 16, 2024",pharmacy,84,pharmacy,True
+"Nov 17 – 23, 2024",pharmacy,89,pharmacy,True
+"Nov 24 – 30, 2024",pharmacy,84,pharmacy,True
+"Dec 1 – 7, 2024",pharmacy,86,pharmacy,True
+"Dec 8 – 14, 2024",pharmacy,88,pharmacy,True
+"Dec 15 – 21, 2024",pharmacy,86,pharmacy,True
+"Dec 22 – 28, 2024",pharmacy,76,pharmacy,True
+"Dec 29, 2024 – Jan 4, 2025",pharmacy,74,pharmacy,True
+"Jan 5 – 11, 2025",pharmacy,80,pharmacy,True
+"Jan 12 – 18, 2025",pharmacy,75,pharmacy,True
+"Jan 19 – 25, 2025",pharmacy,79,pharmacy,True
+"Jan 26 – Feb 1, 2025",pharmacy,81,pharmacy,True
+"Feb 2 – 8, 2025",pharmacy,77,pharmacy,True
+"Feb 9 – 15, 2025",pharmacy,74,pharmacy,True
+"Feb 16 – 22, 2025",pharmacy,72,pharmacy,True
+"Feb 23 – Mar 1, 2025",pharmacy,72,pharmacy,True
+"Mar 2 – 8, 2025",pharmacy,78,pharmacy,True
+"Mar 9 – 15, 2025",pharmacy,75,pharmacy,True
+"Mar 16 – 22, 2025",pharmacy,85,pharmacy,True
+"Mar 23 – 29, 2025",pharmacy,75,pharmacy,True
+"Mar 30 – Apr 5, 2025",pharmacy,73,pharmacy,True
+"Apr 6 – 12, 2025",pharmacy,83,pharmacy,True
+"Apr 13 – 19, 2025",pharmacy,76,pharmacy,True
+"Apr 20 – 26, 2025",pharmacy,81,pharmacy,True
+"Apr 27 – May 3, 2025",pharmacy,82,pharmacy,True
+"May 4 – 10, 2025",pharmacy,85,pharmacy,True
+"May 11 – 17, 2025",pharmacy,92,pharmacy,True
+"May 18 – 24, 2025",pharmacy,84,pharmacy,True
+"May 25 – 31, 2025",pharmacy,88,pharmacy,True
+"Jun 1 – 7, 2025",pharmacy,86,pharmacy,True
+"Jun 8 – 14, 2025",pharmacy,97,pharmacy,True
+"Jun 15 – 21, 2025",pharmacy,100,pharmacy,True
+"Jun 22 – 28, 2025",pharmacy,97,pharmacy,True
+"Jun 29 – Jul 5, 2025",pharmacy,98,pharmacy,True
+"Jul 6 – 12, 2025",pharmacy,91,pharmacy,True
+"Jul 13 – 19, 2025",pharmacy,95,pharmacy,True
+"Jul 20 – 26, 2025",pharmacy,87,pharmacy,True
+"Jul 27 – Aug 2, 2025",pharmacy,88,pharmacy,True
+"Aug 3 – 9, 2025",pharmacy,86,pharmacy,True
+"Aug 10 – 16, 2025",pharmacy,92,pharmacy,True
+"Aug 17 – 23, 2025",pharmacy,84,pharmacy,True
+"Aug 24 – 30, 2025",pharmacy,83,pharmacy,True
+"Aug 31 – Sep 6, 2025",pharmacy,82,pharmacy,True
+"Sep 7 – 13, 2025",pharmacy,83,pharmacy,True
+"Sep 14 – 20, 2025",pharmacy,82,pharmacy,True
+"Sep 21 – 27, 2025",pharmacy,85,pharmacy,True
+"Sep 28 – Oct 4, 2025",pharmacy,71,pharmacy,True
+"Sep 29 – Oct 5, 2024",pharmacy Pune,52,pharmacy Pune,True
+"Oct 6 – 12, 2024",pharmacy Pune,82,pharmacy Pune,True
+"Oct 13 – 19, 2024",pharmacy Pune,57,pharmacy Pune,True
+"Oct 20 – 26, 2024",pharmacy Pune,44,pharmacy Pune,True
+"Oct 27 – Nov 2, 2024",pharmacy Pune,19,pharmacy Pune,True
+"Nov 3 – 9, 2024",pharmacy Pune,23,pharmacy Pune,True
+"Nov 10 – 16, 2024",pharmacy Pune,29,pharmacy Pune,True
+"Nov 17 – 23, 2024",pharmacy Pune,26,pharmacy Pune,True
+"Nov 24 – 30, 2024",pharmacy Pune,27,pharmacy Pune,True
+"Dec 1 – 7, 2024",pharmacy Pune,30,pharmacy Pune,True
+"Dec 8 – 14, 2024",pharmacy Pune,36,pharmacy Pune,True
+"Dec 15 – 21, 2024",pharmacy Pune,28,pharmacy Pune,True
+"Dec 22 – 28, 2024",pharmacy Pune,25,pharmacy Pune,True
+"Dec 29, 2024 – Jan 4, 2025",pharmacy Pune,23,pharmacy Pune,True
+"Jan 5 – 11, 2025",pharmacy Pune,28,pharmacy Pune,True
+"Jan 12 – 18, 2025",pharmacy Pune,26,pharmacy Pune,True
+"Jan 19 – 25, 2025",pharmacy Pune,31,pharmacy Pune,True
+"Jan 26 – Feb 1, 2025",pharmacy Pune,29,pharmacy Pune,True
+"Feb 2 – 8, 2025",pharmacy Pune,22,pharmacy Pune,True
+"Feb 9 – 15, 2025",pharmacy Pune,21,pharmacy Pune,True
+"Feb 16 – 22, 2025",pharmacy Pune,22,pharmacy Pune,True
+"Feb 23 – Mar 1, 2025",pharmacy Pune,20,pharmacy Pune,True
+"Mar 2 – 8, 2025",pharmacy Pune,26,pharmacy Pune,True
+"Mar 9 – 15, 2025",pharmacy Pune,23,pharmacy Pune,True
+"Mar 16 – 22, 2025",pharmacy Pune,26,pharmacy Pune,True
+"Mar 23 – 29, 2025",pharmacy Pune,28,pharmacy Pune,True
+"Mar 30 – Apr 5, 2025",pharmacy Pune,23,pharmacy Pune,True
+"Apr 6 – 12, 2025",pharmacy Pune,21,pharmacy Pune,True
+"Apr 13 – 19, 2025",pharmacy Pune,29,pharmacy Pune,True
+"Apr 20 – 26, 2025",pharmacy Pune,23,pharmacy Pune,True
+"Apr 27 – May 3, 2025",pharmacy Pune,25,pharmacy Pune,True
+"May 4 – 10, 2025",pharmacy Pune,43,pharmacy Pune,True
+"May 11 – 17, 2025",pharmacy Pune,42,pharmacy Pune,True
+"May 18 – 24, 2025",pharmacy Pune,44,pharmacy Pune,True
+"May 25 – 31, 2025",pharmacy Pune,44,pharmacy Pune,True
+"Jun 1 – 7, 2025",pharmacy Pune,41,pharmacy Pune,True
+"Jun 8 – 14, 2025",pharmacy Pune,48,pharmacy Pune,True
+"Jun 15 – 21, 2025",pharmacy Pune,100,pharmacy Pune,True
+"Jun 22 – 28, 2025",pharmacy Pune,80,pharmacy Pune,True
+"Jun 29 – Jul 5, 2025",pharmacy Pune,62,pharmacy Pune,True
+"Jul 6 – 12, 2025",pharmacy Pune,67,pharmacy Pune,True
+"Jul 13 – 19, 2025",pharmacy Pune,51,pharmacy Pune,True
+"Jul 20 – 26, 2025",pharmacy Pune,42,pharmacy Pune,True
+"Jul 27 – Aug 2, 2025",pharmacy Pune,48,pharmacy Pune,True
+"Aug 3 – 9, 2025",pharmacy Pune,43,pharmacy Pune,True
+"Aug 10 – 16, 2025",pharmacy Pune,32,pharmacy Pune,True
+"Aug 17 – 23, 2025",pharmacy Pune,33,pharmacy Pune,True
+"Aug 24 – 30, 2025",pharmacy Pune,27,pharmacy Pune,True
+"Aug 31 – Sep 6, 2025",pharmacy Pune,22,pharmacy Pune,True
+"Sep 7 – 13, 2025",pharmacy Pune,39,pharmacy Pune,True
+"Sep 14 – 20, 2025",pharmacy Pune,38,pharmacy Pune,True
+"Sep 21 – 27, 2025",pharmacy Pune,39,pharmacy Pune,True
+"Sep 28 – Oct 4, 2025",pharmacy Pune,77,pharmacy Pune,True

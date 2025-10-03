@@ -1,0 +1,54 @@
+has_data,query,date,formatted_value,value
+True,bakery,"Sep 29 – Oct 5, 2024",bakery,76
+True,bakery,"Oct 6 – 12, 2024",bakery,73
+True,bakery,"Oct 13 – 19, 2024",bakery,72
+True,bakery,"Oct 20 – 26, 2024",bakery,94
+True,bakery,"Oct 27 – Nov 2, 2024",bakery,79
+True,bakery,"Nov 3 – 9, 2024",bakery,72
+True,bakery,"Nov 10 – 16, 2024",bakery,75
+True,bakery,"Nov 17 – 23, 2024",bakery,74
+True,bakery,"Nov 24 – 30, 2024",bakery,75
+True,bakery,"Dec 1 – 7, 2024",bakery,73
+True,bakery,"Dec 8 – 14, 2024",bakery,82
+True,bakery,"Dec 15 – 21, 2024",bakery,83
+True,bakery,"Dec 22 – 28, 2024",bakery,100
+True,bakery,"Dec 29, 2024 – Jan 4, 2025",bakery,91
+True,bakery,"Jan 5 – 11, 2025",bakery,74
+True,bakery,"Jan 12 – 18, 2025",bakery,71
+True,bakery,"Jan 19 – 25, 2025",bakery,74
+True,bakery,"Jan 26 – Feb 1, 2025",bakery,71
+True,bakery,"Feb 2 – 8, 2025",bakery,67
+True,bakery,"Feb 9 – 15, 2025",bakery,76
+True,bakery,"Feb 16 – 22, 2025",bakery,65
+True,bakery,"Feb 23 – Mar 1, 2025",bakery,64
+True,bakery,"Mar 2 – 8, 2025",bakery,69
+True,bakery,"Mar 9 – 15, 2025",bakery,67
+True,bakery,"Mar 16 – 22, 2025",bakery,69
+True,bakery,"Mar 23 – 29, 2025",bakery,68
+True,bakery,"Mar 30 – Apr 5, 2025",bakery,64
+True,bakery,"Apr 6 – 12, 2025",bakery,63
+True,bakery,"Apr 13 – 19, 2025",bakery,73
+True,bakery,"Apr 20 – 26, 2025",bakery,71
+True,bakery,"Apr 27 – May 3, 2025",bakery,73
+True,bakery,"May 4 – 10, 2025",bakery,72
+True,bakery,"May 11 – 17, 2025",bakery,82
+True,bakery,"May 18 – 24, 2025",bakery,70
+True,bakery,"May 25 – 31, 2025",bakery,71
+True,bakery,"Jun 1 – 7, 2025",bakery,73
+True,bakery,"Jun 8 – 14, 2025",bakery,73
+True,bakery,"Jun 15 – 21, 2025",bakery,76
+True,bakery,"Jun 22 – 28, 2025",bakery,73
+True,bakery,"Jun 29 – Jul 5, 2025",bakery,73
+True,bakery,"Jul 6 – 12, 2025",bakery,74
+True,bakery,"Jul 13 – 19, 2025",bakery,73
+True,bakery,"Jul 20 – 26, 2025",bakery,69
+True,bakery,"Jul 27 – Aug 2, 2025",bakery,73
+True,bakery,"Aug 3 – 9, 2025",bakery,75
+True,bakery,"Aug 10 – 16, 2025",bakery,76
+True,bakery,"Aug 17 – 23, 2025",bakery,75
+True,bakery,"Aug 24 – 30, 2025",bakery,73
+True,bakery,"Aug 31 – Sep 6, 2025",bakery,75
+True,bakery,"Sep 7 – 13, 2025",bakery,71
+True,bakery,"Sep 14 – 20, 2025",bakery,67
+True,bakery,"Sep 21 – 27, 2025",bakery,64
+True,bakery,"Sep 28 – Oct 4, 2025",bakery,66

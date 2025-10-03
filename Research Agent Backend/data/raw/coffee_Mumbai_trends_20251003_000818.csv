@@ -1,0 +1,107 @@
+has_data,query,date,formatted_value,value
+True,coffee,"Sep 29 – Oct 5, 2024",coffee,95
+True,coffee,"Oct 6 – 12, 2024",coffee,81
+True,coffee,"Oct 13 – 19, 2024",coffee,82
+True,coffee,"Oct 20 – 26, 2024",coffee,81
+True,coffee,"Oct 27 – Nov 2, 2024",coffee,80
+True,coffee,"Nov 3 – 9, 2024",coffee,83
+True,coffee,"Nov 10 – 16, 2024",coffee,91
+True,coffee,"Nov 17 – 23, 2024",coffee,89
+True,coffee,"Nov 24 – 30, 2024",coffee,89
+True,coffee,"Dec 1 – 7, 2024",coffee,86
+True,coffee,"Dec 8 – 14, 2024",coffee,91
+True,coffee,"Dec 15 – 21, 2024",coffee,93
+True,coffee,"Dec 22 – 28, 2024",coffee,93
+True,coffee,"Dec 29, 2024 – Jan 4, 2025",coffee,95
+True,coffee,"Jan 5 – 11, 2025",coffee,92
+True,coffee,"Jan 12 – 18, 2025",coffee,90
+True,coffee,"Jan 19 – 25, 2025",coffee,92
+True,coffee,"Jan 26 – Feb 1, 2025",coffee,89
+True,coffee,"Feb 2 – 8, 2025",coffee,93
+True,coffee,"Feb 9 – 15, 2025",coffee,90
+True,coffee,"Feb 16 – 22, 2025",coffee,92
+True,coffee,"Feb 23 – Mar 1, 2025",coffee,87
+True,coffee,"Mar 2 – 8, 2025",coffee,90
+True,coffee,"Mar 9 – 15, 2025",coffee,85
+True,coffee,"Mar 16 – 22, 2025",coffee,90
+True,coffee,"Mar 23 – 29, 2025",coffee,82
+True,coffee,"Mar 30 – Apr 5, 2025",coffee,83
+True,coffee,"Apr 6 – 12, 2025",coffee,82
+True,coffee,"Apr 13 – 19, 2025",coffee,88
+True,coffee,"Apr 20 – 26, 2025",coffee,82
+True,coffee,"Apr 27 – May 3, 2025",coffee,85
+True,coffee,"May 4 – 10, 2025",coffee,77
+True,coffee,"May 11 – 17, 2025",coffee,88
+True,coffee,"May 18 – 24, 2025",coffee,84
+True,coffee,"May 25 – 31, 2025",coffee,83
+True,coffee,"Jun 1 – 7, 2025",coffee,91
+True,coffee,"Jun 8 – 14, 2025",coffee,94
+True,coffee,"Jun 15 – 21, 2025",coffee,91
+True,coffee,"Jun 22 – 28, 2025",coffee,91
+True,coffee,"Jun 29 – Jul 5, 2025",coffee,92
+True,coffee,"Jul 6 – 12, 2025",coffee,92
+True,coffee,"Jul 13 – 19, 2025",coffee,93
+True,coffee,"Jul 20 – 26, 2025",coffee,93
+True,coffee,"Jul 27 – Aug 2, 2025",coffee,95
+True,coffee,"Aug 3 – 9, 2025",coffee,95
+True,coffee,"Aug 10 – 16, 2025",coffee,100
+True,coffee,"Aug 17 – 23, 2025",coffee,96
+True,coffee,"Aug 24 – 30, 2025",coffee,92
+True,coffee,"Aug 31 – Sep 6, 2025",coffee,91
+True,coffee,"Sep 7 – 13, 2025",coffee,87
+True,coffee,"Sep 14 – 20, 2025",coffee,86
+True,coffee,"Sep 21 – 27, 2025",coffee,87
+True,coffee,"Sep 28 – Oct 4, 2025",coffee,85
+True,coffee Mumbai,"Sep 29 – Oct 5, 2024",coffee Mumbai,59
+True,coffee Mumbai,"Oct 6 – 12, 2024",coffee Mumbai,70
+True,coffee Mumbai,"Oct 13 – 19, 2024",coffee Mumbai,57
+True,coffee Mumbai,"Oct 20 – 26, 2024",coffee Mumbai,56
+True,coffee Mumbai,"Oct 27 – Nov 2, 2024",coffee Mumbai,53
+True,coffee Mumbai,"Nov 3 – 9, 2024",coffee Mumbai,56
+True,coffee Mumbai,"Nov 10 – 16, 2024",coffee Mumbai,61
+True,coffee Mumbai,"Nov 17 – 23, 2024",coffee Mumbai,63
+True,coffee Mumbai,"Nov 24 – 30, 2024",coffee Mumbai,78
+True,coffee Mumbai,"Dec 1 – 7, 2024",coffee Mumbai,70
+True,coffee Mumbai,"Dec 8 – 14, 2024",coffee Mumbai,75
+True,coffee Mumbai,"Dec 15 – 21, 2024",coffee Mumbai,76
+True,coffee Mumbai,"Dec 22 – 28, 2024",coffee Mumbai,56
+True,coffee Mumbai,"Dec 29, 2024 – Jan 4, 2025",coffee Mumbai,81
+True,coffee Mumbai,"Jan 5 – 11, 2025",coffee Mumbai,75
+True,coffee Mumbai,"Jan 12 – 18, 2025",coffee Mumbai,80
+True,coffee Mumbai,"Jan 19 – 25, 2025",coffee Mumbai,72
+True,coffee Mumbai,"Jan 26 – Feb 1, 2025",coffee Mumbai,59
+True,coffee Mumbai,"Feb 2 – 8, 2025",coffee Mumbai,60
+True,coffee Mumbai,"Feb 9 – 15, 2025",coffee Mumbai,57
+True,coffee Mumbai,"Feb 16 – 22, 2025",coffee Mumbai,60
+True,coffee Mumbai,"Feb 23 – Mar 1, 2025",coffee Mumbai,63
+True,coffee Mumbai,"Mar 2 – 8, 2025",coffee Mumbai,75
+True,coffee Mumbai,"Mar 9 – 15, 2025",coffee Mumbai,67
+True,coffee Mumbai,"Mar 16 – 22, 2025",coffee Mumbai,70
+True,coffee Mumbai,"Mar 23 – 29, 2025",coffee Mumbai,98
+True,coffee Mumbai,"Mar 30 – Apr 5, 2025",coffee Mumbai,100
+True,coffee Mumbai,"Apr 6 – 12, 2025",coffee Mumbai,62
+True,coffee Mumbai,"Apr 13 – 19, 2025",coffee Mumbai,65
+True,coffee Mumbai,"Apr 20 – 26, 2025",coffee Mumbai,48
+True,coffee Mumbai,"Apr 27 – May 3, 2025",coffee Mumbai,59
+True,coffee Mumbai,"May 4 – 10, 2025",coffee Mumbai,50
+True,coffee Mumbai,"May 11 – 17, 2025",coffee Mumbai,63
+True,coffee Mumbai,"May 18 – 24, 2025",coffee Mumbai,64
+True,coffee Mumbai,"May 25 – 31, 2025",coffee Mumbai,77
+True,coffee Mumbai,"Jun 1 – 7, 2025",coffee Mumbai,65
+True,coffee Mumbai,"Jun 8 – 14, 2025",coffee Mumbai,70
+True,coffee Mumbai,"Jun 15 – 21, 2025",coffee Mumbai,66
+True,coffee Mumbai,"Jun 22 – 28, 2025",coffee Mumbai,63
+True,coffee Mumbai,"Jun 29 – Jul 5, 2025",coffee Mumbai,77
+True,coffee Mumbai,"Jul 6 – 12, 2025",coffee Mumbai,67
+True,coffee Mumbai,"Jul 13 – 19, 2025",coffee Mumbai,71
+True,coffee Mumbai,"Jul 20 – 26, 2025",coffee Mumbai,68
+True,coffee Mumbai,"Jul 27 – Aug 2, 2025",coffee Mumbai,67
+True,coffee Mumbai,"Aug 3 – 9, 2025",coffee Mumbai,61
+True,coffee Mumbai,"Aug 10 – 16, 2025",coffee Mumbai,77
+True,coffee Mumbai,"Aug 17 – 23, 2025",coffee Mumbai,69
+True,coffee Mumbai,"Aug 24 – 30, 2025",coffee Mumbai,51
+True,coffee Mumbai,"Aug 31 – Sep 6, 2025",coffee Mumbai,48
+True,coffee Mumbai,"Sep 7 – 13, 2025",coffee Mumbai,60
+True,coffee Mumbai,"Sep 14 – 20, 2025",coffee Mumbai,52
+True,coffee Mumbai,"Sep 21 – 27, 2025",coffee Mumbai,53
+True,coffee Mumbai,"Sep 28 – Oct 4, 2025",coffee Mumbai,56
