@@ -11,9 +11,9 @@ class Settings:
     
     # Model Configurations with updated Groq models
     MODELS = {
-        "gpt_oss_120b": {"cerebras": "gpt-oss-120b", "groq": "llama-3.1-70b-versatile"},
-        "llama_70b": {"cerebras": "llama-70b", "groq": "llama-3.1-70b-versatile"},
-        "qwen_480b": {"cerebras": "qwen-480b", "groq": "llama-3.1-8b-instant"}
+        "gpt_oss_120b": {"cerebras": "llama-4-Maverick", "groq": "llama-3.1-70b-versatile"},
+        "llama_70b": {"cerebras": "llama-4-Maverick", "groq": "llama-3.1-70b-versatile"},
+        "qwen_480b": {"cerebras": "llama-4-Maverick", "groq": "llama-3.1-8b-instant"}
     }
     
     # Provider priority

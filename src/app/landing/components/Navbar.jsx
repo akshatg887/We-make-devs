@@ -21,24 +21,22 @@ const Navbar = () => {
         
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 text-xl font-light text-[#2ca0c3] font-poppins">
-          <PlaneTakeoff size={25} strokeWidth={1.5} />
           GrowthPilot
         </Link>
 
         {/* Desktop Menu & Buttons */}
         <div className="hidden lg:flex items-center gap-8">
-          <ul className="flex items-center gap-8 list-none m-0 p-0">
-            <li><Link href="#features" className="text-gray-600 font-medium transition-colors hover:text-gray-900">Features</Link></li>
-            <li><Link href="#use-cases" className="text-gray-600 font-medium transition-colors hover:text-gray-900">Use Cases</Link></li>
-            <li><Link href="#pricing" className="text-gray-600 font-medium transition-colors hover:text-gray-900">Pricing</Link></li>
-          </ul>
-          <div className="flex items-center gap-2">
-            <button className={secondaryBtnClasses}>Log in</button>
-            <button className={primaryBtnClasses}>Level up</button>
-          </div>
-        </div>
+           {/* <ul className="flex items-center gap-8 list-none m-0 p-0">
+                <li><Link href="#features" className="text-gray-600 font-medium transition-colors hover:text-gray-900">Features</Link></li>
+                <li><Link href="#use-cases" className="text-gray-600 font-medium transition-colors hover:text-gray-900">Use Cases</Link></li>
+                <li><Link href="#pricing" className="text-gray-600 font-medium transition-colors hover:text-gray-900">Pricing</Link></li>
+                </ul>  */}
+                <div className="flex items-center gap-2">
+                <Link href="/root" className={primaryBtnClasses}>Level up</Link>
+                </div>
+              </div>
 
-        {/* Mobile toggle */}
+              {/* Mobile toggle */}
         <div className="lg:hidden cursor-pointer mt-1 text-[#2CA9D4]" onClick={toggleMenu}>
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </div>

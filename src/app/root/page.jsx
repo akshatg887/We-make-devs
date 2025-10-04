@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { getComprehensiveResearch, parseUserQuery } from "@/services/api";
+import {
+  getComprehensiveResearch,
+  parseUserQuery,
+  uploadCSV,
+  chatWithCSV,
+} from "@/services/api";
+import CSVChart from "@/components/CSVChart";
 
 function page() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -12,6 +18,11 @@ function page() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  // CSV-related state
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [csvSessionId, setCsvSessionId] = useState(null);
+  const fileInputRef = useRef(null);
+
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -21,78 +32,166 @@ function page() {
     scrollToBottom();
   }, [messages]);
 
+  // Handle file attachment
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type === "text/csv" || file.name.endsWith(".csv")) {
+        setAttachedFile(file);
+        setError(null);
+      } else {
+        setError("Please select a CSV file");
+        e.target.value = null;
+      }
+    }
+  };
+
+  // Remove attached file
+  const removeAttachedFile = () => {
+    setAttachedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
+  };
+
   // Handle sending message
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    if ((!inputValue.trim() && !attachedFile) || isLoading) return;
 
-    const userMessage = inputValue.trim();
+    const userMessage = inputValue.trim() || "Analyze this CSV file";
     setInputValue("");
     setError(null);
 
     // Add user message to chat
     setMessages((prev) => [
       ...prev,
-      { type: "user", content: userMessage, timestamp: new Date() },
+      {
+        type: "user",
+        content: userMessage,
+        timestamp: new Date(),
+        hasAttachment: !!attachedFile,
+        fileName: attachedFile?.name,
+      },
     ]);
     setIsLoading(true);
 
     try {
-      // Parse the user query
-      const parsed = parseUserQuery(userMessage);
+      // Check if this is a CSV-related query
+      if (attachedFile) {
+        // CSV Upload Flow
+        setMessages((prev) => [
+          ...prev,
+          {
+            type: "typing",
+            content: "Analyzing your CSV file...",
+            timestamp: new Date(),
+          },
+        ]);
 
-      if (parsed.needsClarification) {
-        // If we can't parse, ask for clarification
+        const uploadResult = await uploadCSV(attachedFile);
+
+        // Store session ID for follow-up questions
+        setCsvSessionId(uploadResult.session_id);
+
+        // Remove typing indicator
+        setMessages((prev) => prev.filter((msg) => msg.type !== "typing"));
+
+        // Add AI response with CSV analysis
         setMessages((prev) => [
           ...prev,
           {
             type: "assistant",
-            content:
-              "I'd love to help! Please provide both the business type and location. For example: 'coffee shop in Mumbai' or 'pharmacy in Pune'",
+            content: `Here's the analysis of **${attachedFile.name}**:`,
             timestamp: new Date(),
-            needsClarification: true,
+            csvData: uploadResult,
+            dataType: "csv",
           },
         ]);
-        setIsLoading(false);
-        return;
-      }
 
-      // Show typing indicator
-      setMessages((prev) => [
-        ...prev,
-        {
-          type: "typing",
-          content: "Analyzing market data...",
-          timestamp: new Date(),
-        },
-      ]);
+        // Clear the attached file after successful upload
+        removeAttachedFile();
+      } else if (csvSessionId && userMessage) {
+        // CSV Follow-up Chat Flow
+        setMessages((prev) => [
+          ...prev,
+          {
+            type: "typing",
+            content: "Analyzing...",
+            timestamp: new Date(),
+          },
+        ]);
 
-      // Fetch data from FastAPI backend
-      const data = await getComprehensiveResearch(
-        parsed.businessType,
-        parsed.location,
-        {
-          includeRawData: false,
-          useCache: true,
+        const chatResult = await chatWithCSV(csvSessionId, userMessage);
+
+        // Remove typing indicator
+        setMessages((prev) => prev.filter((msg) => msg.type !== "typing"));
+
+        // Add AI response
+        setMessages((prev) => [
+          ...prev,
+          {
+            type: "assistant",
+            content: chatResult.parsed?.answer || chatResult.response,
+            timestamp: new Date(),
+            csvChatData: chatResult.parsed,
+            dataType: "csv-chat",
+          },
+        ]);
+      } else {
+        // Original Business Research Flow
+        const parsed = parseUserQuery(userMessage);
+
+        if (parsed.needsClarification) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              type: "assistant",
+              content:
+                "I'd love to help! Please provide both the business type and location. For example: 'coffee shop in Mumbai' or 'pharmacy in Pune'. You can also attach a CSV file for data analysis!",
+              timestamp: new Date(),
+              needsClarification: true,
+            },
+          ]);
+          setIsLoading(false);
+          return;
         }
-      );
 
-      console.log("✅ API Response received:", data);
-      console.log("📊 Response keys:", Object.keys(data));
-      console.log("📊 Full response:", JSON.stringify(data, null, 2));
+        // Show typing indicator
+        setMessages((prev) => [
+          ...prev,
+          {
+            type: "typing",
+            content: "Analyzing market data...",
+            timestamp: new Date(),
+          },
+        ]);
 
-      // Remove typing indicator
-      setMessages((prev) => prev.filter((msg) => msg.type !== "typing"));
+        // Fetch data from FastAPI backend
+        const data = await getComprehensiveResearch(
+          parsed.businessType,
+          parsed.location,
+          {
+            includeRawData: false,
+            useCache: true,
+          }
+        );
 
-      // Add AI response with data
-      setMessages((prev) => [
-        ...prev,
-        {
-          type: "assistant",
-          content: `Here's a comprehensive analysis for **${parsed.businessType}** in **${parsed.location}**:`,
-          timestamp: new Date(),
-          data: data,
-        },
-      ]);
+        console.log("✅ API Response received:", data);
+
+        // Remove typing indicator
+        setMessages((prev) => prev.filter((msg) => msg.type !== "typing"));
+
+        // Add AI response with data
+        setMessages((prev) => [
+          ...prev,
+          {
+            type: "assistant",
+            content: `Here's a comprehensive analysis for **${parsed.businessType}** in **${parsed.location}**:`,
+            timestamp: new Date(),
+            data: data,
+          },
+        ]);
+      }
     } catch (err) {
       console.error("API Error:", err);
       setMessages((prev) => prev.filter((msg) => msg.type !== "typing"));
@@ -102,7 +201,7 @@ function page() {
         {
           type: "error",
           content:
-            err.message || "Failed to fetch research data. Please try again.",
+            err.message || "Failed to process request. Please try again.",
           timestamp: new Date(),
         },
       ]);
@@ -244,6 +343,13 @@ function page() {
                 >
                   🥐 Bakery in Delhi
                 </button>
+
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2 bg-gradient-to-r from-blue-50 to-green-50 hover:from-blue-100 hover:to-green-100 backdrop-blur-sm rounded-full text-sm font-medium text-slate-700 hover:text-slate-900 border border-blue-200/40 hover:border-blue-300 transition-all duration-300 hover:shadow-md"
+                >
+                  📊 Upload CSV for Analysis
+                </button>
               </div>
             </div>
           ) : (
@@ -255,6 +361,24 @@ function page() {
                     <div className="flex justify-end">
                       <div className="bg-blue-600 text-white px-6 py-3 rounded-2xl rounded-tr-sm max-w-2xl shadow-md">
                         <p className="text-sm">{message.content}</p>
+                        {message.hasAttachment && message.fileName && (
+                          <div className="mt-2 flex items-center gap-2 bg-blue-700/50 rounded-lg px-3 py-2">
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                              />
+                            </svg>
+                            <span className="text-xs">{message.fileName}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -597,20 +721,24 @@ function page() {
                                                   {trendObj.momentum && (
                                                     <span
                                                       className={`text-xs px-2 py-1 rounded-full ${
-                                                        trendObj.momentum.toLowerCase() ===
+                                                        typeof trendObj.momentum === 'string' &&
+                                                        (trendObj.momentum.toLowerCase() ===
                                                           "rising" ||
                                                         trendObj.momentum.toLowerCase() ===
-                                                          "high"
+                                                          "high")
                                                           ? "bg-green-100 text-green-700"
-                                                          : trendObj.momentum.toLowerCase() ===
+                                                          : typeof trendObj.momentum === 'string' &&
+                                                            (trendObj.momentum.toLowerCase() ===
                                                               "stable" ||
                                                             trendObj.momentum.toLowerCase() ===
-                                                              "moderate"
+                                                              "moderate")
                                                           ? "bg-blue-100 text-blue-700"
                                                           : "bg-orange-100 text-orange-700"
                                                       }`}
                                                     >
-                                                      {trendObj.momentum}
+                                                      {typeof trendObj.momentum === 'string' 
+                                                        ? trendObj.momentum 
+                                                        : String(trendObj.momentum)}
                                                     </span>
                                                   )}
                                                 </div>
@@ -723,6 +851,142 @@ function page() {
                             )}
                           </div>
                         )}
+
+                        {/* CSV Analysis Data */}
+                        {message.csvData && message.dataType === "csv" && (
+                          <div className="space-y-4">
+                            {/* Insights */}
+                            {message.csvData.insights &&
+                              message.csvData.insights.length > 0 && (
+                                <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-white/40">
+                                  <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                                    <span className="text-xl">💡</span> Key
+                                    Insights
+                                  </h3>
+                                  <ul className="space-y-2">
+                                    {message.csvData.insights.map(
+                                      (insight, idx) => (
+                                        <li
+                                          key={idx}
+                                          className="text-sm text-slate-700 flex items-start gap-2"
+                                        >
+                                          <span className="text-blue-600 mt-1">
+                                            •
+                                          </span>
+                                          <span>{insight}</span>
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              )}
+
+                            {/* Anomalies */}
+                            {message.csvData.anomalies &&
+                              message.csvData.anomalies.length > 0 && (
+                                <div className="bg-orange-50/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-orange-200/40">
+                                  <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                                    <span className="text-xl">⚠️</span>{" "}
+                                    Anomalies Detected
+                                  </h3>
+                                  <ul className="space-y-2">
+                                    {message.csvData.anomalies.map(
+                                      (anomaly, idx) => (
+                                        <li
+                                          key={idx}
+                                          className="text-sm text-slate-700 flex items-start gap-2"
+                                        >
+                                          <span className="text-orange-600 mt-1">
+                                            ⚠
+                                          </span>
+                                          <span>{anomaly}</span>
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              )}
+
+                            {/* Interactive Charts with Recharts */}
+                            {message.csvData.chart_data &&
+                              message.csvData.chart_data.length > 0 && (
+                                <div className="bg-gradient-to-br from-blue-50/90 to-purple-50/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-blue-200/40">
+                                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                                    <span className="text-xl">📊</span> Data
+                                    Visualizations
+                                  </h3>
+                                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    {message.csvData.chart_data.map(
+                                      (chartData, idx) => (
+                                        <CSVChart
+                                          key={idx}
+                                          chartSpec={chartData}
+                                          data={chartData.data}
+                                        />
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                            {/* Recommendations */}
+                            {message.csvData.recommendations &&
+                              message.csvData.recommendations.length > 0 && (
+                                <div className="bg-green-50/90 backdrop-blur-sm p-6 rounded-2xl shadow-md border border-green-200/40">
+                                  <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                                    <span className="text-xl">✅</span>{" "}
+                                    Recommendations
+                                  </h3>
+                                  <ul className="space-y-2">
+                                    {message.csvData.recommendations.map(
+                                      (rec, idx) => (
+                                        <li
+                                          key={idx}
+                                          className="text-sm text-slate-700 flex items-start gap-2"
+                                        >
+                                          <span className="text-green-600 mt-1">
+                                            ✓
+                                          </span>
+                                          <span>{rec}</span>
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              )}
+                          </div>
+                        )}
+
+                        {/* CSV Chat Follow-up Data */}
+                        {message.csvChatData &&
+                          message.dataType === "csv-chat" && (
+                            <div className="space-y-3">
+                              {message.csvChatData.followUp &&
+                                message.csvChatData.followUp.length > 0 && (
+                                  <div className="bg-blue-50/90 backdrop-blur-sm p-4 rounded-xl shadow-sm border border-blue-200/40">
+                                    <p className="text-xs font-medium text-slate-600 mb-2">
+                                      💬 You might also want to ask:
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {message.csvChatData.followUp.map(
+                                        (question, idx) => (
+                                          <button
+                                            key={idx}
+                                            onClick={() => {
+                                              setInputValue(question);
+                                              inputRef.current?.focus();
+                                            }}
+                                            className="text-xs bg-white hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full border border-blue-200 transition-colors"
+                                          >
+                                            {question}
+                                          </button>
+                                        )
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                            </div>
+                          )}
                       </div>
                     </div>
                   )}
@@ -768,7 +1032,90 @@ function page() {
 
         {/* Input Area */}
         <div className="bg-white/60 backdrop-blur-xl border-t border-white/20 p-6">
+          {/* Attached File Display */}
+          {attachedFile && (
+            <div className="max-w-4xl mx-auto mb-3">
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-100 rounded-lg p-2">
+                    <svg
+                      className="w-5 h-5 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-800">
+                      {attachedFile.name}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {(attachedFile.size / 1024).toFixed(2)} KB
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={removeAttachedFile}
+                  className="text-slate-500 hover:text-red-600 transition-colors p-1 rounded-lg hover:bg-red-50"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-4 max-w-4xl mx-auto">
+            {/* File Upload Button */}
+            <div className="relative">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="csv-upload"
+              />
+              <label
+                htmlFor="csv-upload"
+                className={`group cursor-pointer px-4 py-4 bg-white/90 hover:bg-white backdrop-blur-sm border border-white/40 rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2 ${
+                  isLoading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <svg
+                  className="w-5 h-5 text-slate-600 group-hover:text-blue-600 transition-colors"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                  />
+                </svg>
+              </label>
+            </div>
+
             <div className="flex-1 relative group">
               <input
                 ref={inputRef}
@@ -777,13 +1124,19 @@ function page() {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
-                placeholder="Ask me anything about your business... (e.g., 'coffee shop in Mumbai')"
+                placeholder={
+                  attachedFile
+                    ? "Add a message about your CSV file (optional)..."
+                    : csvSessionId
+                    ? "Ask a follow-up question about your CSV data..."
+                    : "Ask me anything about your business or attach a CSV file for analysis..."
+                }
                 className="w-full px-6 py-4 bg-white/90 backdrop-blur-sm border border-white/40 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400/50 transition-all duration-300 shadow-sm hover:shadow-md text-slate-800 placeholder-slate-500 group-hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
             <button
               onClick={handleSendMessage}
-              disabled={isLoading || !inputValue.trim()}
+              disabled={isLoading || (!inputValue.trim() && !attachedFile)}
               className="group px-6 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium relative overflow-hidden"
             >
               <div className="relative z-10 flex items-center gap-2">
