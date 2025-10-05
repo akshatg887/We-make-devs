@@ -206,3 +206,81 @@ export function parseUserQuery(query) {
     needsClarification: !businessType || !location,
   };
 }
+
+/**
+ * CSV Agent API Functions
+ * These functions communicate with the CSV analysis backend (port 8001)
+ */
+
+const CSV_API_BASE_URL =
+  process.env.NEXT_PUBLIC_CSV_API_URL || "http://localhost:8001";
+
+/**
+ * Upload CSV file and get initial insights
+ * @param {File} file - CSV file to analyze
+ * @returns {Promise<object>} Session ID and analysis results (insights, anomalies, charts, recommendations)
+ */
+export async function uploadCSV(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch(`${CSV_API_BASE_URL}/upload_csv`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.detail ||
+          `CSV Upload Error: ${response.status} ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error.name === "TypeError" && error.message.includes("fetch")) {
+      throw new Error(
+        "Unable to connect to the CSV analysis server. Please ensure the server is running on port 8001."
+      );
+    }
+    throw error;
+  }
+}
+
+/**
+ * Chat with CSV agent using session
+ * @param {string} sessionId - Session ID from upload
+ * @param {string} userMessage - User's question about the CSV
+ * @returns {Promise<object>} Response with answer and parsed JSON
+ */
+export async function chatWithCSV(sessionId, userMessage) {
+  const formData = new FormData();
+  formData.append("session_id", sessionId);
+  formData.append("user_message", userMessage);
+
+  try {
+    const response = await fetch(`${CSV_API_BASE_URL}/chat`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.detail ||
+          `CSV Chat Error: ${response.status} ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error.name === "TypeError" && error.message.includes("fetch")) {
+      throw new Error(
+        "Unable to connect to the CSV analysis server. Please ensure the server is running on port 8001."
+      );
+    }
+    throw error;
+  }
+}
