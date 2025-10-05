@@ -1,0 +1,22 @@
+{
+  "business_type": "none",
+  "location": "none",
+  "previous_analyses": [
+    {
+      "timestamp": "2025-10-04T20:01:21.056752",
+      "analysis": {
+        "interaction": "user_query",
+        "query": "what i asked you previously?"
+      },
+      "query": "what i asked you previously?"
+    }
+  ],
+  "user_queries": [
+    {
+      "timestamp": "2025-10-04T20:01:21.056752",
+      "query": "what i asked you previously?"
+    }
+  ],
+  "created_at": "2025-10-04T20:01:21.056752",
+  "updated_at": "2025-10-04T20:01:21.056752"
+}

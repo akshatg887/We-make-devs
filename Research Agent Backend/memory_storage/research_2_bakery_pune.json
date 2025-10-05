@@ -1,0 +1,146 @@
+{
+  "user_id": "2",
+  "business_type": "bakery",
+  "location": "pune",
+  "timestamp": "2025-10-04T20:20:38.071095",
+  "full_data": {
+    "metadata": {
+      "user_id": "2",
+      "business_type": "bakery",
+      "location": "pune",
+      "report_timestamp": "2025-10-04T20:20:38.068105",
+      "data_sources": [
+        "Google Places",
+        "Google Trends",
+        "Market Analysis"
+      ],
+      "confidence_score": 0.65
+    },
+    "executive_summary": {
+      "business_overview": "Pune\u2019s bakery market is moderately saturated with 22 active bakeries, averaging a strong 4.13-star rating. The top five competitors\u2014Oven Fresh, Fresh Bread, Daily Bread, Sweet Delights, and Morning Fresh\u2014command solid customer bases and operate primarily in the medium\u2011to\u2011premium price segment. While overall search interest for bakeries is currently on a declining trend, the city\u2019s growing middle\u2011class population, rising disposable incomes, and increasing demand for convenient, ready\u2011to\u2011eat products still present a viable opportunity for a differentiated bakery that emphasizes health\u2011focused and digitally enabled offerings. A well\u2011positioned boutique bakery can capture niche demand, achieve break\u2011even within 12\u201118 months, and generate a healthy ROI by leveraging gaps in product variety, extended service hours, and online delivery channels.",
+      "market_opportunity": "The bakery market in Pune demonstrates strong consumer demand despite the absence of identified direct competitors in the immediate vicinity. Lack of explicit trend data creates an opportunity to establish a foothold early and shape market preferences.",
+      "key_findings": [
+        "Analyze local competition for service gaps",
+        "Identify customer preferences through market trends",
+        "Focus on geographic opportunities in the locality",
+        "Develop competitive pricing strategies",
+        "Leverage digital presence for market advantage"
+      ]
+    },
+    "market_analysis": {
+      "market_overview": {
+        "market_size": "\u2248 \u20b9150\u2011200 crore annual revenue (based on ~22 bakeries with average annual sales of \u20b97\u20119 crore each)",
+        "growth_rate": "-2% annually (interest trend declining)",
+        "customer_segments": [
+          "Urban office workers (breakfast & snack consumption)",
+          "Middle\u2011class families (weekly grocery & celebrations)",
+          "College students (affordable quick bites)",
+          "Health\u2011conscious consumers (gluten\u2011free, low\u2011sugar, vegan)",
+          "Corporate catering clients"
+        ],
+        "key_drivers": [
+          "Increasing urban population and office density",
+          "Higher disposable income among young professionals",
+          "Shift toward convenience and ready\u2011to\u2011eat products",
+          "Growing awareness of healthier baked options"
+        ]
+      },
+      "competitive_landscape": {
+        "total_competitors": 0,
+        "average_rating": 0,
+        "market_saturation": "Unknown",
+        "top_competitors": []
+      },
+      "market_trends": {
+        "trend_summary": "No data",
+        "growth_momentum": "unknown",
+        "average_interest": 0,
+        "seasonal_patterns": "No data"
+      }
+    },
+    "business_metrics": {
+      "operational_requirements": {
+        "space_needed": "600\u2011900 sq ft (including kitchen, display, storage, and small seating area)",
+        "staff_requirements": "5\u20119 people (head baker, 2\u20113 bakers/assistants, 1\u20112 front\u2011of\u2011house staff, part\u2011time delivery driver)",
+        "equipment_needs": [
+          "Commercial oven (convection & deck)",
+          "Dough mixer (planetary)",
+          "Proofing cabinet",
+          "Bread slicer & portioning machine",
+          "Refrigeration units (walk\u2011in cooler, display fridge)",
+          "Pastry worktables & storage racks",
+          "POS system with online order integration"
+        ],
+        "licenses_required": [
+          "FSSAI Food License",
+          "GST Registration",
+          "Shop & Establishment Act License (Pune Municipal Corporation)",
+          "Fire Safety Certificate",
+          "Health & Sanitary Inspection Clearance"
+        ]
+      },
+      "financial_projections": {
+        "initial_investment": "\u20b918\u201128 lakhs (equipment, lease, fit\u2011out, initial inventory, licensing)",
+        "monthly_operating_costs": "\u20b93.2\u20114.5 lakhs (rent, utilities, staff salaries, raw material, marketing, overheads)",
+        "break_even_period": "12\u201118 months",
+        "projected_roi": "18%\u201122% annually (post break\u2011even)"
+      },
+      "risk_assessment": {
+        "market_risks": [
+          "Declining overall consumer interest in bakery products",
+          "Price sensitivity due to rising raw\u2011material costs (flour, butter, sugar)"
+        ],
+        "operational_risks": [
+          "Supply\u2011chain disruptions for specialty ingredients",
+          "Retention of skilled baking staff in a competitive labor market"
+        ],
+        "financial_risks": [
+          "Higher than expected initial capex overruns",
+          "Cash\u2011flow pressure during the first year before break\u2011even"
+        ],
+        "mitigation_strategies": [
+          "Develop multiple supplier relationships and maintain safety stock for key inputs",
+          "Implement a tiered pricing model with premium health lines and value\u2011budget staples",
+          "Leverage low\u2011cost digital marketing and partnerships with food delivery platforms to boost sales volume",
+          "Monitor KPIs weekly and adjust staffing schedules to align with demand patterns"
+        ]
+      },
+      "strategic_recommendations": [
+        "Launch a health\u2011focused product line (whole\u2011grain, gluten\u2011free, vegan) to capture the emerging niche and differentiate from existing players.",
+        "Invest in a robust online ordering platform and partner with major delivery aggregators (Swiggy, Zomato) to extend reach beyond foot traffic.",
+        "Adopt an extended\u2011hour model (6\u202fAM\u20119\u202fPM) and introduce a subscription\u2011based breakfast box for office workers and students, creating recurring revenue."
+      ]
+    },
+    "locality_insights": {
+      "business_density": "Unknown",
+      "customer_demand": "Unknown",
+      "growth_potential": "Unknown",
+      "opportunity_zones": []
+    },
+    "eda_analysis": {
+      "data_quality": {},
+      "risk_indicators": {},
+      "opportunity_metrics": {},
+      "market_patterns": {}
+    },
+    "scraped_data": {
+      "places_data": {
+        "total_businesses": 5,
+        "average_rating": 4.14,
+        "price_levels": {
+          "budget": 0,
+          "medium": 0,
+          "premium": 0
+        },
+        "data_freshness": "real_time"
+      },
+      "trends_data": {
+        "total_trend_points": 12,
+        "interest_trend": "declining",
+        "peak_interest": 80
+      },
+      "collection_time": "2025-10-04T20:20:38.068105"
+    },
+    "visualization_data": {}
+  }
+}

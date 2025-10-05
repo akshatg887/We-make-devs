@@ -1,0 +1,56 @@
+{
+  "user_id": "4",
+  "conversation_history": [],
+  "research_data": {
+    "taxi_mumbai": {
+      "business_type": "taxi",
+      "location": "mumbai",
+      "timestamp": "2025-10-05T15:41:44.725978",
+      "executive_summary": "Mumbai\u2019s taxi market remains one of the most dynamic urban transport segments in India, driven by a dense population, high commuter demand, and rapid adoption of app\u2011based ride\u2011hailing. While traditional black\u2011and\u2011yellow taxis still dominate the streets, platforms such as Uber and Ola have reshaped customer expectations around convenience, safety, and pricing transparency. A well\u2011structured taxi operation that blends a modest owned fleet with technology integration can capture a sizable share of daily commuter trips, corporate contracts, and tourism\u2011driven rides, achieving profitability within 12\u201118 months under disciplined cost control.\n\nThe market is characterized by intense competition but also clear gaps: premium, eco\u2011friendly, and niche\u2011route services are under\u2011served. By focusing on fleet optimization, driver retention, and leveraging digital dispatch, a new entrant can differentiate itself, command higher average fares, and build sustainable revenue streams. The analysis below outlines the size, growth, operational needs, financial outlook, competitive landscape, risks, and actionable strategies for launching a taxi business in Mumbai.",
+      "total_competitors": 0,
+      "market_saturation": "Unknown",
+      "average_rating": 0,
+      "investment_range": "\u20b9120\u2011180 lakh (fleet purchase, depot setup, technology & licensing).",
+      "key_opportunities": [
+        "Analyze local competition for service gaps",
+        "Identify customer preferences through market trends",
+        "Focus on geographic opportunities in the locality",
+        "Develop competitive pricing strategies",
+        "Leverage digital presence for market advantage"
+      ],
+      "scraped_data_summary": {
+        "places_data": {
+          "total_businesses": 5,
+          "average_rating": 4.38,
+          "price_levels": {
+            "budget": 0,
+            "medium": 0,
+            "premium": 0
+          },
+          "data_freshness": "real_time"
+        },
+        "trends_data": {
+          "total_trend_points": 12,
+          "interest_trend": "stable",
+          "peak_interest": 95
+        },
+        "collection_time": "2025-10-05T15:41:44.725978"
+      },
+      "confidence_score": 0.65
+    }
+  },
+  "created_at": "2025-10-05T15:41:44.725978",
+  "updated_at": "2025-10-05T15:41:44.767610",
+  "scraped_data": {
+    "taxi_mumbai": {
+      "business_type": "taxi",
+      "location": "mumbai",
+      "timestamp": "2025-10-05T15:41:44.767610",
+      "total_businesses": 5,
+      "average_rating": 4.38,
+      "data_freshness": "real_time",
+      "total_trend_points": 12,
+      "interest_trend": "stable"
+    }
+  }
+}

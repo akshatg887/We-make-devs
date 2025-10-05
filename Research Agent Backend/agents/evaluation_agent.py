@@ -3,7 +3,7 @@ from cerebras.cloud.sdk import Cerebras
 from typing import Dict, Any, List
 from config.settings import settings
 from config.models import AgentResponse
-from utils.visualization import VisualizationGenerator
+from visualizations.visualization import VisualizationGenerator
 
 class EvaluationAgent:
     def __init__(self, model: str = "qwen_480b"):
