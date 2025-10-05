@@ -1,6 +1,14 @@
 {
   "user_id": "4",
-  "conversation_history": [],
+  "conversation_history": [
+    {
+      "user_message": "\"What was my last message?\"",
+      "assistant_response": "\nEXECUTIVE SUMMARY:\nBased on market analysis for the business business in the area, we've identified a growing market with moderate competition. The area shows strong potential for quality business services with digital integration.\n\nCOMPETITIVE LANDSCAPE ANALYSIS:\n- Total Competitors: 18-25 established businesss in the area\n- Average Customer Rating: 4.2/5.0 across competitors\n- Market Saturation: Medium with room for differentiation\n- Price Range: Varies based on business type and quality\n\nTOP COMPETITORS:\n1. Premium Business - High-quality positioning, strong brand recognition\n2. Local Business Chain - Widespread presence, consistent service  \n3. Budget Business - Affordable pricing, value-focused services\n\nMARKET TRENDS:\n- Growing demand for quality business services (+25% YoY)\n- Increased interest in premium business experiences (+18% YoY)\n- Strong digital booking preference (65% of customers)\n\nSTRATEGIC RECOMMENDATIONS:\n\n1. SERVICE DIFFERENTIATION:\n   - Introduce unique business offerings not available elsewhere\n   - Develop specialized business packages for different customer segments\n   - Offer premium business experiences\n\n2. DIGITAL TRANSFORMATION:\n   - Implement online booking with easy scheduling\n   - Develop loyalty program with personalized offers\n   - Social media marketing focusing on customer experiences\n\n3. OPERATIONAL EXCELLENCE:\n   - Train staff in latest business techniques and customer service\n   - Implement customer feedback system for continuous improvement\n   - Optimize pricing for competitive positioning\n\nRISK ASSESSMENT:\n- Moderate competition intensity in business sector\n- Seasonal fluctuations in business demand\n- Need for continuous staff training and quality control\n\nCONFIDENCE SCORE: 78%\n",
+      "business_type": "",
+      "location": "",
+      "timestamp": "2025-10-05T17:35:03.343058"
+    }
+  ],
   "research_data": {
     "taxi_mumbai": {
       "business_type": "taxi",
@@ -40,7 +48,7 @@
     }
   },
   "created_at": "2025-10-05T15:41:44.725978",
-  "updated_at": "2025-10-05T15:41:44.767610",
+  "updated_at": "2025-10-05T17:35:03.343093",
   "scraped_data": {
     "taxi_mumbai": {
       "business_type": "taxi",
