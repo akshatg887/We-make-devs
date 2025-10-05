@@ -350,7 +350,7 @@ async def upload_csv(file: UploadFile = File(...)):
         # we still return session_id even if LLM fails; include error in response
         traceback.print_exc()
         memory_mgr.add_conversation(session_id, user_message="__upload__", assistant_response=f"(LLM failed: {e})")
-        return JSONResponse(status_code=502, content={"session_id": session_id, "error": str(e)})
+        return JSONResponse(status_code=502, content={"user_id": session_id, "error": str(e)})
 
     # 6) save the upload conversation as a single entry in conversation_history
     # note: we use a special user_message token "__upload__" — it's stored but our chat flow will
@@ -359,7 +359,7 @@ async def upload_csv(file: UploadFile = File(...)):
 
     # 7) return session_id and initial parsed model output (if parseable)
     parsed = extract_json_from_text(assistant_text)
-    return JSONResponse(content={"session_id": session_id, "parsed": parsed or {}, "raw": assistant_text})
+    return JSONResponse(content={"user_id": session_id, "parsed": parsed or {}, "raw": assistant_text})
 
 
 # ---------------- Chat endpoint ----------------
@@ -493,7 +493,7 @@ async def chat(session_id: str = Form(...), user_message: str = Form(...)):
 
     # 11) return full response to frontend (raw text + parsed if any)
     return JSONResponse({
-        "session_id": session_id,
+        "user_id": session_id,
         "response": assistant_text,
         "parsed": parsed,
         "raw": assistant_text
