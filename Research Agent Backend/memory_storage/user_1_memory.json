@@ -1,0 +1,16 @@
+{
+  "user_id": "1",
+  "last_updated": "2025-10-04T20:01:21.055815",
+  "conversation_history": [
+    {
+      "type": "human",
+      "content": "what i asked you previously?",
+      "timestamp": "2025-10-04T20:01:21.055815"
+    },
+    {
+      "type": "ai",
+      "content": "I don\u2019t have a record of any earlier question from you in this conversation. Could you let me know what you were looking for or repeat your previous request? I\u2019m happy to dive right in and provide the analysis or insights you need.",
+      "timestamp": "2025-10-04T20:01:21.055815"
+    }
+  ]
+}

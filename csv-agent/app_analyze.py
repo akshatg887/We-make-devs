@@ -11,7 +11,11 @@ import tempfile
 import subprocess
 import shutil
 from pathlib import Path
+from datetime import datetime
 
+
+import uuid
+from memory_manager import MemoryManager
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.responses import JSONResponse
@@ -29,6 +33,11 @@ from cerebras_csv_insights import summary_to_text
 
 # Load .env
 load_dotenv()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MEMORY_DIR = os.path.join(BASE_DIR, "../memory_storage/")  # project-local memory folder
+
+os.makedirs(MEMORY_DIR, exist_ok=True) 
+memory_mgr = MemoryManager(storage_path=MEMORY_DIR)
 CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY")
 CEREBRAS_MODEL = os.getenv("CEREBRAS_MODEL", "qwen-3-235b-a22b-instruct-2507")
 if not CEREBRAS_API_KEY:
@@ -55,34 +64,73 @@ def load_csv_strict(file_bytes: bytes) -> pd.DataFrame:
             raise HTTPException(status_code=400, detail=f"Could not parse CSV: {e}; fallback error: {e2}")
 
 def compact_summary(df: pd.DataFrame, max_sample_rows: int = 5) -> Dict[str, Any]:
-    """Compact summary for prompting the model."""
-    summary: Dict[str, Any] = {}
-    summary["n_rows"] = int(len(df))
-    summary["columns"] = {col: str(dtype) for col, dtype in df.dtypes.items()}
+    """
+    Compact summary for prompting the model.
 
+    Returns a JSON-friendly dictionary with:
+      - n_rows
+      - columns (dtype names)
+      - numeric_stats (count, mean, median, std, min, max, sum)
+      - categorical_top_values (top 5 values as {str(value): int(count)})
+      - date_columns (detected among non-numeric columns)
+      - samples (list of up to max_sample_rows dicts)
+    """
+    summary: Dict[str, Any] = {}
+
+    # defensive: if df is None or empty
+    if df is None or len(df) == 0:
+        summary["n_rows"] = 0
+        summary["columns"] = {}
+        summary["samples"] = []
+        return summary
+
+    summary["n_rows"] = int(len(df))
+    # use dtype.name to get a stable string
+    summary["columns"] = {col: df[col].dtype.name for col in df.columns}
+
+    # numeric stats
     numeric = df.select_dtypes(include=[np.number])
     num_stats: Dict[str, Any] = {}
     for c in numeric.columns:
         s = numeric[c].dropna()
         if len(s) == 0:
             continue
+        # convert to python native types for JSON safety
+        count = int(s.count())
+        mean = float(s.mean()) if not pd.isna(s.mean()) else None
+        median = float(s.median()) if not pd.isna(s.median()) else None
+        std = float(s.std()) if len(s) > 1 and not pd.isna(s.std()) else 0.0
+        mn = float(s.min()) if not pd.isna(s.min()) else None
+        mx = float(s.max()) if not pd.isna(s.max()) else None
+        summ = float(s.sum()) if not pd.isna(s.sum()) else None
+
         num_stats[c] = {
-            "count": int(s.count()),
-            "mean": float(s.mean()),
-            "median": float(s.median()),
-            "std": float(s.std()) if len(s) > 1 else 0.0,
-            "min": float(s.min()),
-            "max": float(s.max()),
-            "sum": float(s.sum())
+            "count": count,
+            "mean": mean,
+            "median": median,
+            "std": std,
+            "min": mn,
+            "max": mx,
+            "sum": summ
         }
     if num_stats:
         summary["numeric_stats"] = num_stats
 
+    # categorical top values (make keys strings and counts plain ints)
     cat_stats: Dict[str, Any] = {}
     non_num = df.select_dtypes(exclude=[np.number])
     for c in non_num.columns:
-        top = df[c].value_counts(dropna=True).head(5).to_dict()
-        cat_stats[c] = top
+        try:
+            vc = df[c].value_counts(dropna=True).head(5)
+            top: Dict[str, int] = {}
+            for k, v in vc.items():
+                # convert key to string (JSON-friendly) and count to int
+                top[str(k)] = int(v)
+            cat_stats[c] = top
+        except Exception:
+            # if something odd happens, skip gracefully
+            cat_stats[c] = {}
+
     if cat_stats:
         summary["categorical_top_values"] = cat_stats
 
@@ -90,15 +138,34 @@ def compact_summary(df: pd.DataFrame, max_sample_rows: int = 5) -> Dict[str, Any
     date_cols: List[str] = []
     for c in non_num.columns:
         try:
-            parsed = pd.to_datetime(df[c], errors="coerce", format='mixed')
+            parsed = pd.to_datetime(df[c], errors="coerce")
+            # require at least 50% of rows parse to dates (same heuristic you used)
             if parsed.notna().sum() >= max(1, 0.5 * len(df)):
                 date_cols.append(c)
         except Exception:
+            # ignore parse errors
             pass
     if date_cols:
         summary["date_columns"] = date_cols
 
-    summary["samples"] = df.head(max_sample_rows).to_dict(orient="records")
+    # sample rows as plain python types (to_dict already usually does this)
+    samples = df.head(max_sample_rows).to_dict(orient="records")
+    # ensure nested numpy types are converted (json.dumps will otherwise complain)
+    def _coerce_obj(o):
+        if isinstance(o, (np.integer,)):
+            return int(o)
+        if isinstance(o, (np.floating,)):
+            return float(o)
+        if isinstance(o, (np.ndarray,)):
+            return o.tolist()
+        return o
+
+    coerced_samples = []
+    for row in samples:
+        coerced = {k: _coerce_obj(v) for k, v in row.items()}
+        coerced_samples.append(coerced)
+
+    summary["samples"] = coerced_samples
     return summary
 
 # Balanced-brace JSON extraction to avoid partial arrays/false matches
@@ -177,8 +244,12 @@ USER_PROMPT_TEMPLATE = (
 
 @app.post("/upload_csv")
 async def upload_csv(file: UploadFile = File(...)):
-    """Upload CSV, create session, run initial analysis, write and run LLM code as a temp script,
-       gather generated chart files, and return chart URLs."""
+    """
+    Upload CSV -> create a session_id, persist CSV + initial memory JSON,
+    call the LLM once for initial analysis (optional), and save that assistant reply
+    into conversation_history. IMPORTANT: do not store system prompts in conversation history.
+    """
+    # read upload bytes and parse CSV
     try:
         contents = await file.read()
         if not contents:
@@ -190,45 +261,85 @@ async def upload_csv(file: UploadFile = File(...)):
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
-    # create session and store df
+    # 1) session id
     session_id = str(uuid.uuid4())
-    SESSIONS[session_id] = {"df": df, "chat_history": []}
 
-    # save uploaded CSV to a temp file (so the temp script can read it)
-    tmp_csv = tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".csv")
+    # 2) save CSV to disk under memory dir (session-scoped filename)
+    tmp_csv = tempfile.NamedTemporaryFile(mode="wb", delete=False,
+                                          suffix=f"_{session_id}.csv",
+                                          dir=memory_mgr.storage_path)
     try:
         tmp_csv.write(contents)
         tmp_csv.flush()
     finally:
         tmp_csv.close()
-    SESSIONS[session_id]["csv_path"] = tmp_csv.name
 
-    # prepare summary text for model
+    # 3) initialize minimal session memory and persist (user_id = session_id)
+    initial_memory = {
+        "user_id": session_id,
+        "conversation_history": [],     # will hold dicts with user_message + assistant_response
+        "research_data": {},
+        "scraped_data": {},
+        "city_opportunities": {},
+        "csv_path": tmp_csv.name,
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat()
+    }
+    memory_mgr.save_user_memory(session_id, initial_memory)
+    # debug: confirm file was created
+    mem_path = memory_mgr.get_user_memory_file(session_id)
+    print(f"[upload_csv] saved memory to: {mem_path}, exists: {os.path.exists(mem_path)}")
+
+    # 4) keep dataframe in in-memory cache for immediate work (optional)
+    SESSIONS[session_id] = {"df": df}  # chat will load from disk if needed
+
+    # 5) prepare summary and call LLM (this is the 'initial analysis' step you already had)
     summary = compact_summary(df)
-    summary_lines = [f"Rows: {summary['n_rows']}"]
+    summary_lines = [f"Rows: {summary.get('n_rows', 0)}"]
     summary_lines.append("Columns:")
-    for c, t in summary["columns"].items():
-        summary_lines.append(f"- {c}: {t}")
-    if "numeric_stats" in summary:
-        for c, s in summary["numeric_stats"].items():
-            summary_lines.append(f"- {c}: mean={s['mean']:.2f}, sum={s['sum']:.2f}")
-    summary_lines.append("Sample rows:")
-    for r in summary["samples"]:
-        summary_lines.append(json.dumps(r, ensure_ascii=False))
+
+    columns = summary.get("columns", {})
+    if isinstance(columns, dict):
+        for c, t in columns.items():
+            summary_lines.append(f"- {c}: {t}")
     summary_text = "\n".join(summary_lines)
 
-    # messages = system + user summary
-    messages = [{"role":"system","content":SYSTEM_PROMPT},
-                {"role":"user","content":USER_PROMPT_TEMPLATE.format(summary_text=summary_text)}]
+    mem = memory_mgr.load_user_memory(session_id)
 
-    # store messages in history for session context
-    SESSIONS[session_id]["chat_history"].extend(messages)
+    # dataset key: use the filename without extension
+    dataset_key = file.filename.rsplit(".", 1)[0]
 
-    # call model (non-streaming)
+    mem["research_data"][dataset_key] = {
+        "timestamp": datetime.now().isoformat(),
+        "summary": summary,
+        "csv_path": tmp_csv.name
+    }
+
+    memory_mgr.save_user_memory(session_id, mem)
+
+    numeric_stats = summary.get("numeric_stats", {})
+    if isinstance(numeric_stats, dict):
+        for c, s in numeric_stats.items():
+            summary_lines.append(f"- {c}: mean={s.get('mean', 0):.2f}, sum={s.get('sum', 0):.2f}")
+
+    summary_lines.append("Sample rows:")
+    for r in summary.get("samples", []):
+        if isinstance(r, dict):
+            summary_lines.append(json.dumps(r, ensure_ascii=False))
+
+    summary_text = "\n".join(summary_lines)
+
+    # system + user prompts for the upload-time analysis (KEPT local to this call only)
+    upload_system = SYSTEM_PROMPT
+    upload_user = USER_PROMPT_TEMPLATE.format(summary_text=summary_text)
+
+    messages = [{"role": "system", "content": upload_system},
+                {"role": "user", "content": upload_user}]
+
     try:
         resp = client.chat.completions.create(
             messages=messages,
-            model=CEREBRAS_MODEL,
+            model=os.getenv("CEREBRAS_MODEL", CEREBRAS_MODEL),
             stream=False,
             max_completion_tokens=4000,
             temperature=0.0,
@@ -236,156 +347,159 @@ async def upload_csv(file: UploadFile = File(...)):
         )
         assistant_text = resp.choices[0].message.content
     except Exception as e:
+        # we still return session_id even if LLM fails; include error in response
         traceback.print_exc()
-        raise HTTPException(status_code=502, detail=f"LLM call failed: {e}")
+        memory_mgr.add_conversation(session_id, user_message="__upload__", assistant_response=f"(LLM failed: {e})")
+        return JSONResponse(status_code=502, content={"session_id": session_id, "error": str(e)})
 
-    # try parse JSON
+    # 6) save the upload conversation as a single entry in conversation_history
+    # note: we use a special user_message token "__upload__" — it's stored but our chat flow will
+    # exclude it when building messages for follow-up chats (this prevents "upload prompts" from restricting chat)
+    memory_mgr.add_conversation(session_id, user_message="__upload__", assistant_response=assistant_text)
+
+    # 7) return session_id and initial parsed model output (if parseable)
     parsed = extract_json_from_text(assistant_text)
-    if parsed is None:
-        # try reformatter
-        try:
-            followup = [{"role":"system","content":"You are a JSON reformatter. Extract the JSON object from the previous assistant reply and return only that JSON."},
-                        {"role":"user","content": assistant_text}]
-            resp2 = client.chat.completions.create(messages=followup, model=CEREBRAS_MODEL, stream=False, max_completion_tokens=1200, temperature=0.0)
-            assistant_text2 = resp2.choices[0].message.content
-            parsed = extract_json_from_text(assistant_text2)
-            if parsed is not None:
-                assistant_text = assistant_text2
-        except Exception:
-            pass
+    return JSONResponse(content={"session_id": session_id, "parsed": parsed or {}, "raw": assistant_text})
 
-    if parsed is None:
-        return JSONResponse(status_code=500, content={"error":"Could not parse JSON from LLM", "raw_output": assistant_text[:5000]})
 
-    # Prepare chart data for frontend rendering
-    chart_data = []
-    for chart_spec in parsed.get("charts", []):
-        try:
-            chart_type = chart_spec.get("type", "bar")
-            x_col = chart_spec.get("x")
-            y_col = chart_spec.get("y")
-            
-            if x_col and y_col and x_col in df.columns and y_col in df.columns:
-                # Prepare data based on chart type
-                if chart_type in ["bar", "line"]:
-                    # Aggregate data by x column
-                    if df[x_col].dtype in ['object', 'string']:
-                        # Categorical x-axis
-                        grouped = df.groupby(x_col)[y_col].sum().reset_index()
-                        data = grouped.to_dict('records')
-                    else:
-                        # Numeric x-axis - take all points
-                        data = df[[x_col, y_col]].dropna().to_dict('records')
-                    
-                    chart_data.append({
-                        **chart_spec,
-                        "data": data[:50]  # Limit to 50 points for performance
-                    })
-                elif chart_type == "pie":
-                    # Pie chart - aggregate by x column
-                    grouped = df.groupby(x_col)[y_col].sum().reset_index()
-                    grouped.columns = ['name', 'value']
-                    chart_data.append({
-                        **chart_spec,
-                        "data": grouped.to_dict('records')[:10]  # Limit to 10 slices
-                    })
-                elif chart_type == "hist":
-                    # Histogram - just send the y values
-                    values = df[y_col].dropna().tolist()[:500]  # Limit data points
-                    chart_data.append({
-                        **chart_spec,
-                        "data": [{"value": v} for v in values]
-                    })
-        except Exception as e:
-            print(f"Error preparing chart data: {e}")
-            continue
-
-    out = {
-        "session_id": session_id,
-        "insights": parsed.get("insights", []),
-        "anomalies": parsed.get("anomalies", []),
-        "charts": parsed.get("charts", []),
-        "chart_data": chart_data,  # New field with actual data
-        "recommendations": parsed.get("recommendations", []),
-        "raw_model_output": assistant_text
-    }
-
-    return JSONResponse(content=out)
-
+# ---------------- Chat endpoint ----------------
 @app.post("/chat")
 async def chat(session_id: str = Form(...), user_message: str = Form(...)):
-    """Continue a chat on an existing session."""
+    """
+    Continue a chat on an existing session.
+    - Saves the user message to persistent memory as a (pending) assistant response.
+    - Builds a free-flowing message payload: system prompt + dataset summary + recent convo (skip __upload__).
+    - Calls the LLM, replaces the pending entry with the actual assistant response, saves memory.
+    - Returns assistant text and any parsed JSON.
+    """
+
+    # 1) session validity
+    # Try to lazily load the session if it's missing
+   # Try to lazily load the session if it's missing
     if session_id not in SESSIONS:
-        raise HTTPException(status_code=404, detail="Invalid session_id")
+        memory_path = memory_mgr.get_user_memory_file(session_id)  # authoritative path
 
+        if os.path.exists(memory_path):
+            # load the memory and reconstruct minimal SESSIONS entry
+            mem = memory_mgr.load_user_memory(session_id)
+            # if a csv_path exists, try to load df into memory (non-blocking)
+            df = None
+            csv_path = mem.get("csv_path")
+            try:
+                if csv_path and os.path.exists(csv_path):
+                    df = pd.read_csv(csv_path)
+            except Exception:
+                df = None
+            SESSIONS[session_id] = {"df": df}
+        else:
+            raise HTTPException(status_code=404, detail="Invalid session_id")
+
+    # 2) load dataset and memory
     df = SESSIONS[session_id]["df"]
-    print(df)
-    print("-------------------------------------------------------")
-    history = []
-    # Add dataset summary as a system message (context for LLM)
-    if not any(msg.get("content","").startswith("Dataset summary") for msg in history if msg["role"]=="system"):
-        df_summary_text = summary_to_text(compact_summary(df))
-        history.append({"role": "system", "content": f"Dataset summary:\n{df_summary_text}"})
+    mem = memory_mgr.load_user_memory(session_id)
 
-    # Append the user's message
-    history.append({"role": "user", "content": user_message})
+    # 3) persist the incoming user_message immediately as a conversation turn with a pending assistant response
+    #    so we always have a durable trace (helps with crashes / retries)
+    memory_mgr.add_conversation(session_id, user_message=user_message, assistant_response="(pending)")
 
-    # Optional guidance to the LLM
-    system_prompt = (
-        "You are a professional data analyst providing insights to business users. "
-        "Return ONLY a valid JSON object with these keys:\n"
-        "- \"answer\": A clear, professional response formatted with:\n"
-        "  * Use bullet points (start with '-' or '•') for lists\n"
-        "  * Use numbered lists (1., 2., 3.) for sequential steps\n"
-        "  * Use short, clear sentences\n"
-        "  * Break information into digestible chunks\n"
-        "  * Avoid long paragraphs - max 2-3 sentences per paragraph\n"
-        "  * Use section headers followed by ':' when appropriate\n"
-        "  * DO NOT use markdown formatting (no **, `, or code blocks)\n"
-        "  * DO NOT wrap response in quotes\n"
-        "  * Make it conversational and easy to read\n"
-        "- \"followUp\": Array of 2-3 relevant follow-up questions\n\n"
-        "Format example for answer:\n"
-        "Key Findings:\n"
-        "- First important insight\n"
-        "- Second important insight\n"
-        "- Third important insight\n\n"
-        "Recommendations:\n"
-        "1. First recommendation with brief explanation\n"
-        "2. Second recommendation with brief explanation\n\n"
-        "If the question is unrelated to the dataset, politely redirect to dataset-related queries."
+    # reload mem (to include the pending entry)
+    mem = memory_mgr.load_user_memory(session_id)
+
+    # 4) free-flowing chat system prompt (no rigid JSON-only enforcement)
+    chat_system = (
+        "You are a knowledgeable data analyst. "
+        "You are a strict, factual data analyst. "
+        "Return ONLY a JSON object with keys: "
+        "\"answer\" (Complete descriptive and detailed explanation, unless prompted otherwise by the user.), "
+        "\"followUp\" (followup questions that user could be interested in next.), "
+        "The user may ask questions about the dataset, insights, anomalies, charts, or recommendations. "
+        "You can provide explanations, context, or clarifications. "
+        "Use previous conversation and dataset summary stored in context. "
+        "Output can be in text, JSON, or a mix depending on what the user asks."
     )
 
+    # 5) dataset summary from persistent memory (do not include upload-time system prompts)
+    #    memory_mgr.get_context_summary should return a short textual dataset summary & relevant recent points
+    dataset_summary = memory_mgr.get_context_summary(session_id)
+    messages = [
+        {"role": "system", "content": chat_system},
+        {"role": "system", "content": f"Dataset summary:\n{dataset_summary}"}
+    ]
 
-    full_messages = [{"role": "system", "content": system_prompt}] + history
+    # 6) append recent conversation turns from memory, skipping the special "__upload__" user token
+    #    include assistant responses (except pending) and user messages
+    #    keep a sliding window to avoid sending too much context
+    recent = mem.get("conversation_history", [])[-30:]  # tune window size if needed
+    for conv in recent:
+        if not isinstance(conv, dict):
+            conv = {
+            "user_message": str(conv),
+            "assistant_response": "",
+            "timestamp": ""
+            }
 
-    # Send to model
+        u_msg = str(conv.get("user_message", "")).strip()
+        a_msg = str(conv.get("assistant_response", "")).strip()
+
+    # now you can safely use u_msg and a_msg
+        if u_msg == "__upload__":
+            if a_msg and a_msg != "(pending)":
+                messages.append({"role": "assistant", "content": a_msg})
+            continue
+
+        if u_msg:
+            messages.append({"role": "user", "content": u_msg})
+        if a_msg and a_msg != "(pending)":
+            messages.append({"role": "assistant", "content": a_msg})
+
+    # 7) the latest user message is already recorded in memory as pending; still include it for prompt completeness
+    messages.append({"role": "user", "content": user_message})
+
+    # 8) call the LLM (non-streaming for simplicity). Adjust tokens/temperature/top_p to taste.
     try:
         resp = client.chat.completions.create(
-            messages=full_messages,
-            model=CEREBRAS_MODEL,
+            messages=messages,
+            model=os.getenv("CEREBRAS_MODEL", CEREBRAS_MODEL),
             stream=False,
             max_completion_tokens=2000,
             temperature=0.0,
             top_p=0.9
         )
+        # adapt to SDK response shape you have; this accesses the assistant content
         assistant_text = resp.choices[0].message.content
     except Exception as e:
+        # update the pending entry to reflect failure
+        mem = memory_mgr.load_user_memory(session_id)
+        for i in range(len(mem["conversation_history"]) - 1, -1, -1):
+            if mem["conversation_history"][i].get("assistant_response") == "(pending)":
+                mem["conversation_history"][i]["assistant_response"] = f"(LLM call failed: {e})"
+                mem["conversation_history"][i]["timestamp"] = datetime.now().isoformat()
+                break
+        memory_mgr.save_user_memory(session_id, mem)
         traceback.print_exc()
         raise HTTPException(status_code=502, detail=f"LLM call failed: {e}")
 
-    # append assistant reply to session history
-    history.append({"role": "assistant", "content": assistant_text})
+    # 9) replace the pending assistant response with the real assistant_text and persist
+    mem = memory_mgr.load_user_memory(session_id)
+    for i in range(len(mem["conversation_history"]) - 1, -1, -1):
+        if mem["conversation_history"][i].get("assistant_response") == "(pending)":
+            mem["conversation_history"][i]["assistant_response"] = assistant_text
+            mem["conversation_history"][i]["timestamp"] = datetime.now().isoformat()
+            break
+    memory_mgr.save_user_memory(session_id, mem)
 
-    # Parse JSON output
+    # 10) try to extract JSON from the assistant (if the assistant returned structured JSON)
     parsed = extract_json_from_text(assistant_text)
-    if parsed is None:
-        raise HTTPException(status_code=500, detail=f"Could not parse JSON from model output. Raw output:\n{assistant_text[:2000]}")
 
-    return JSONResponse(content={
+    # 11) return full response to frontend (raw text + parsed if any)
+    return JSONResponse({
+        "session_id": session_id,
         "response": assistant_text,
-        "parsed": parsed
+        "parsed": parsed,
+        "raw": assistant_text
     })
+
+
 
 # ---------------- Health check ----------------
 @app.get("/health")

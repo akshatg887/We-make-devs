@@ -15,3 +15,5 @@ fastapi
 uvicorn
 httpx
 groq
+langchain
+langchain-core

@@ -1,17 +1,18 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query,Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from typing import Dict, Any, Optional, List
 import uvicorn
 from datetime import datetime
 import json
-
 from agents.research_agent import ResearchAgent
 from agents.structured_analysis_agent import StructuredAnalysisAgent
 from agents.business_discovery_agent import BusinessDiscoveryAgent
 from agents.evaluation_agent import EvaluationAgent
 from tools.searchapi_client import SearchAPIClient
 from config.models import *
+from agents.memory_agent import MemoryEnhancedAgent
+from memory.memory_manager import BusinessMemoryManager
 
 app = FastAPI(
     title="Market Intelligence Pro API",
@@ -34,6 +35,7 @@ analysis_agent = StructuredAnalysisAgent()
 discovery_agent = BusinessDiscoveryAgent()
 evaluation_agent = EvaluationAgent()
 searchapi_client = SearchAPIClient()
+memory_agent = MemoryEnhancedAgent()
 
 # Helper functions (moved outside class structure)
 def analyze_competitors_from_maps(maps_data: List[Dict]) -> Dict[str, Any]:
@@ -344,18 +346,18 @@ async def root():
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
-# In main.py, update the comprehensive_research endpoint:
+# Add these enhanced endpoints to main.py
 
 @app.get("/api/comprehensive-research")
 async def comprehensive_research(
+    user_id: str = Query(..., description="User ID to store research in memory"),
     business_type: str = Query(..., description="Type of business to research"),
     location: str = Query(..., description="City/location for research"),
     include_raw_data: bool = Query(False, description="Include raw scraped data in response"),
     use_cache: bool = Query(True, description="Use cached results if available")
 ):
     """
-    Comprehensive research endpoint that provides complete business analysis, 
-    market trends, competitor data, and city insights using SearchAPI.
+    Comprehensive research endpoint that stores results in user memory
     """
     try:
         # Validate and clean inputs
@@ -365,126 +367,138 @@ async def comprehensive_research(
         if not business_type:
             raise HTTPException(status_code=400, detail="business_type is required")
         
-        print(f"🚀 Starting comprehensive research: {business_type} in {location}")
+        print(f"🚀 Starting comprehensive research for user {user_id}: {business_type} in {location}")
         
-        # Step 1: Get fresh SearchAPI data first
-        print(f"🌐 Collecting fresh SearchAPI data for {business_type} in {location}")
-        google_maps_data = searchapi_client.search_google_maps(
-            f"{business_type} in {location}", 
-            location
-        )
-        google_trends_data = searchapi_client.search_google_trends(business_type, "IN")
-        related_searches = searchapi_client.get_related_searches(business_type)
-        
-        # Save the SearchAPI data
-        searchapi_data = {
-            "google_maps": google_maps_data,
-            "google_trends": google_trends_data,
-            "related_searches": related_searches,
-            "collection_time": datetime.now().isoformat()
-        }
-        
-        print(f"💾 Saved SearchAPI data: {len(google_maps_data)} places, {len(google_trends_data)} trends")
-        
-        # Step 2: Conduct advanced research with the fresh SearchAPI data
+        # Step 1: Conduct advanced research with fresh data collection
         research_response: AgentResponse = research_agent.conduct_research(
             business_type=business_type,
             location=location,
             use_cache=use_cache
         )
         
-        # Step 3: Generate structured analysis using SearchAPI data
+        # Step 2: Generate structured analysis
         structured_analysis = analysis_agent.generate_structured_analysis(
             research_data=research_response.data,
             business_type=business_type,
             location=location
         )
         
-        # Step 4: Get comprehensive business analysis
+        # Step 3: Get comprehensive business analysis
         comprehensive_analysis = discovery_agent.generate_comprehensive_analysis(
             business_type=business_type,
             city=location
         )
         
-        # Step 5: Analyze competitors from Google Maps data
-        competitor_analysis = analyze_competitors_from_maps(google_maps_data)
+        # Step 4: Collect real-time market data
+        real_time_data = discovery_agent._collect_real_time_data(business_type, location)
         
-        # Step 6: Analyze trends for business opportunities
-        trend_analysis = analyze_trends_for_opportunities(google_trends_data, related_searches, business_type, location)
+        # Step 5: Extract key metrics from research data
+        research_data = research_response.data or {}
+        market_analysis = research_data.get('market_analysis', {})
+        competitive_analysis = market_analysis.get('competitive_analysis', {})
+        trends_analysis = market_analysis.get('trends_analysis', {})
+        locality_analysis = market_analysis.get('locality_analysis', {})
+        eda_analysis = market_analysis.get('eda_analysis', {})
+        
+        # Step 6: Prepare scraped data summary
+        scraped_data_summary = {
+            "places_data": {
+                "total_businesses": len(real_time_data.get('places_data_summary', {}).get('top_competitors', [])),
+                "average_rating": real_time_data.get('places_data_summary', {}).get('avg_rating', 0),
+                "price_levels": real_time_data.get('places_data_summary', {}).get('price_levels', {}),
+                "data_freshness": real_time_data.get('data_freshness', 'unknown')
+            },
+            "trends_data": {
+                "total_trend_points": real_time_data.get('trends_data_summary', {}).get('total_trend_points', 0),
+                "interest_trend": real_time_data.get('trends_data_summary', {}).get('interest_trend', 'unknown'),
+                "peak_interest": real_time_data.get('trends_data_summary', {}).get('peak_interest', 0)
+            },
+            "collection_time": real_time_data.get('collection_time', datetime.now().isoformat())
+        }
         
         # Step 7: Compile comprehensive response
         comprehensive_response = {
             "metadata": {
+                "user_id": user_id,
                 "business_type": business_type,
                 "location": location,
                 "report_timestamp": datetime.now().isoformat(),
-                "data_sources": ["Google Maps API", "Google Trends API", "Market Analysis"],
-                "confidence_score": research_response.confidence,
-                "data_collection_method": "SearchAPI",
-                "searchapi_data_quality": {
-                    "maps_results": len(google_maps_data),
-                    "trends_points": len(google_trends_data),
-                    "related_searches": len(related_searches)
-                }
+                "data_sources": ["Google Places", "Google Trends", "Market Analysis"],
+                "confidence_score": research_response.confidence
             },
             
             "executive_summary": {
                 "business_overview": comprehensive_analysis.executive_summary,
                 "market_opportunity": structured_analysis.executive_summary,
-                "key_findings": research_response.insights[:5],
-                "searchapi_based_recommendation": get_recommended_action(competitor_analysis, trend_analysis)
+                "key_findings": research_response.insights[:5]
             },
             
             "market_analysis": {
                 "market_overview": comprehensive_analysis.market_overview,
                 "competitive_landscape": {
-                    "total_competitors": len(google_maps_data),
-                    "average_rating": competitor_analysis.get('average_rating', 0),
-                    "market_saturation": competitor_analysis.get('saturation_level', 'Unknown'),
-                    "top_competitors": competitor_analysis.get('top_competitors', [])[:5],
-                    "price_analysis": competitor_analysis.get('price_analysis', {}),
-                    "data_source": "Google Maps API"
+                    "total_competitors": competitive_analysis.get('total_competitors', 0),
+                    "average_rating": competitive_analysis.get('average_rating', 0),
+                    "market_saturation": competitive_analysis.get('market_saturation', 'Unknown'),
+                    "top_competitors": competitive_analysis.get('top_competitors', [])[:5]
                 },
                 "market_trends": {
-                    "trend_summary": trend_analysis.get('trend_direction', 'No data'),
-                    "growth_momentum": trend_analysis.get('trend_direction', 'unknown'),
-                    "average_interest": trend_analysis.get('average_interest', 0),
-                    "seasonal_patterns": "Based on search trends",
-                    "opportunity_trends": trend_analysis.get('business_opportunities', []),
-                    "data_source": "Google Trends API"
+                    "trend_summary": trends_analysis.get('trend_summary', 'No data'),
+                    "growth_momentum": trends_analysis.get('growth_momentum', 'unknown'),
+                    "average_interest": trends_analysis.get('average_interest', 0),
+                    "seasonal_patterns": trends_analysis.get('seasonal_patterns', 'No data')
                 }
             },
             
-            "business_viability": {
+            "business_metrics": {
                 "operational_requirements": comprehensive_analysis.operational_requirements,
                 "financial_projections": comprehensive_analysis.financial_projections,
                 "risk_assessment": comprehensive_analysis.risk_assessment,
-                "strategic_recommendations": comprehensive_analysis.strategic_recommendations,
-                "viability_score": calculate_viability_score(competitor_analysis, trend_analysis),
-                "score_basis": "Based on SearchAPI competitor and trend analysis"
+                "strategic_recommendations": comprehensive_analysis.strategic_recommendations
             },
             
-            "searchapi_insights": {
-                "competitor_analysis": f"Found {len(google_maps_data)} competitors in {location}",
-                "trend_analysis": f"Market interest: {trend_analysis.get('average_interest', 0)}/100",
-                "consumer_demand": trend_analysis.get('consumer_behavior', {}).get('search_volume', 'Unknown'),
-                "emerging_opportunities": [opp.get('trend') for opp in trend_analysis.get('business_opportunities', [])[:3]]
+            "locality_insights": {
+                "business_density": locality_analysis.get('business_density', 'Unknown'),
+                "customer_demand": locality_analysis.get('customer_demand', 'Unknown'),
+                "growth_potential": locality_analysis.get('growth_potential', 'Unknown'),
+                "opportunity_zones": locality_analysis.get('opportunity_zones', [])
             },
             
-            "scraped_data_summary": {
-                "google_maps_results": len(google_maps_data),
-                "google_trends_points": len(google_trends_data),
-                "related_searches": len(related_searches),
-                "data_freshness": "real_time",
-                "collection_time": datetime.now().isoformat()
-            }
+            "eda_analysis": {
+                "data_quality": eda_analysis.get('data_quality', {}),
+                "risk_indicators": eda_analysis.get('risk_indicators', {}),
+                "opportunity_metrics": eda_analysis.get('opportunity_metrics', {}),
+                "market_patterns": eda_analysis.get('market_patterns', {})
+            },
+            
+            "scraped_data": scraped_data_summary,
+            
+            "visualization_data": research_data.get('visualization_data', {})
         }
+        
+        # Step 8: Save research data to memory
+        memory_result = memory_agent.save_comprehensive_research(
+            user_id=user_id,
+            business_type=business_type,
+            location=location,
+            research_data=comprehensive_response
+        )
+        
+        # Save scraped data separately
+        memory_agent.save_scraped_data(
+            user_id=user_id,
+            business_type=business_type,
+            location=location,
+            scraped_data=scraped_data_summary
+        )
+        
+        comprehensive_response["memory_saved"] = True
+        comprehensive_response["memory_info"] = memory_result
         
         # Include raw data if requested
         if include_raw_data:
-            comprehensive_response["raw_scraped_data"] = searchapi_data
+            comprehensive_response["raw_research_data"] = research_data
         
-        print(f"✅ Comprehensive research completed for {business_type} in {location}")
+        print(f"✅ Comprehensive research completed and saved to memory for user {user_id}")
         return comprehensive_response
         
     except Exception as e:
@@ -493,37 +507,32 @@ async def comprehensive_research(
 
 @app.get("/api/city-opportunities")
 async def city_opportunities(
+    user_id: str = Query(..., description="User ID to store opportunities in memory"),
     city: str = Query(..., description="City to analyze for business opportunities"),
     include_analysis: bool = Query(True, description="Include detailed analysis for top opportunities"),
     max_opportunities: int = Query(5, description="Maximum number of opportunities to return")
 ):
     """
-    Discover and analyze business opportunities for a specific city with SearchAPI data.
+    Discover and analyze business opportunities for a specific city and store in memory
     """
     try:
         # Validate and clean input
         city = city.strip() or "Pune"
         
-        print(f"🎯 Discovering business opportunities for {city}")
+        print(f"🎯 Discovering business opportunities for user {user_id} in {city}")
         
         # Step 1: Get city business opportunities report
         opportunities_report = discovery_agent.discover_business_opportunities(city)
         
-        # Step 2: Get SearchAPI data for the city
-        print(f"🌐 Collecting SearchAPI data for {city}")
-        popular_searches = searchapi_client.get_related_searches("business opportunities")
-        city_trends = searchapi_client.search_google_trends(city, "IN")
+        # Step 2: Get real-time city data
+        city_data = discovery_agent._collect_city_data(city)
         
-        # Step 3: Analyze top business opportunities with SearchAPI insights
+        # Step 3: Analyze top business opportunities
         top_opportunities = []
         business_analyses = []
         
         for business_suggestion in opportunities_report.top_business_suggestions[:max_opportunities]:
             try:
-                # Get SearchAPI data for this business type
-                business_trends = searchapi_client.search_google_trends(business_suggestion.business_type, "IN")
-                maps_data = searchapi_client.search_google_maps(business_suggestion.business_type, city)
-                
                 if include_analysis:
                     # Get comprehensive analysis for each business type
                     analysis = discovery_agent.generate_comprehensive_analysis(
@@ -532,44 +541,36 @@ async def city_opportunities(
                     )
                     business_analyses.append(analysis.dict())
                 
-                # Enhance opportunity data with SearchAPI insights
-                enhanced_opportunity = {
+                # Prepare opportunity data
+                opportunity_data = {
                     "business_type": business_suggestion.business_type,
                     "viability_score": business_suggestion.viability_score,
                     "investment_range": business_suggestion.investment_range,
                     "competition_level": business_suggestion.competition_level,
                     "growth_potential": business_suggestion.growth_potential,
                     "key_opportunities": business_suggestion.key_opportunities,
-                    "challenges": business_suggestion.challenges,
-                    "searchapi_insights": {
-                        "trend_interest": calculate_trend_interest(business_trends),
-                        "competitor_count": len(maps_data),
-                        "market_gaps": identify_market_gaps(maps_data, business_suggestion.business_type),
-                        "consumer_demand": assess_consumer_demand(business_trends)
-                    }
+                    "challenges": business_suggestion.challenges
                 }
                 
-                top_opportunities.append(enhanced_opportunity)
+                top_opportunities.append(opportunity_data)
                 
             except Exception as e:
                 print(f"⚠️ Failed to analyze {business_suggestion.business_type}: {e}")
                 continue
         
-        # Step 4: Compile city ecosystem report with SearchAPI data
+        # Step 4: Compile city ecosystem report
         city_ecosystem = {
             "city_info": {
                 "name": city,
                 "population_tier": opportunities_report.population_tier,
                 "economic_indicators": opportunities_report.economic_indicators,
-                "consumer_behavior": opportunities_report.consumer_behavior,
-                "search_trends": analyze_city_trends(city_trends)
+                "consumer_behavior": opportunities_report.consumer_behavior
             },
             
             "market_trends": {
                 "current_trends": opportunities_report.market_trends,
                 "consumer_preferences": opportunities_report.consumer_behavior.get('preferred_categories', []),
-                "digital_adoption": opportunities_report.consumer_behavior.get('digital_adoption', 'Medium'),
-                "popular_searches": popular_searches[:10]
+                "digital_adoption": opportunities_report.consumer_behavior.get('digital_adoption', 'Medium')
             },
             
             "business_opportunities": {
@@ -578,111 +579,97 @@ async def city_opportunities(
                 "high_viability_opportunities": [
                     opp for opp in top_opportunities 
                     if opp.get('viability_score', 0) > 80
-                ],
-                "emerging_opportunities": identify_emerging_opportunities(top_opportunities, popular_searches)
+                ]
             },
             
             "investment_landscape": {
                 "average_investment_range": calculate_avg_investment(top_opportunities),
                 "high_growth_sectors": identify_high_growth_sectors(top_opportunities),
-                "low_competition_opportunities": identify_low_competition_opportunities(top_opportunities)
-            },
-            
-            "searchapi_data_insights": {
-                "total_trends_analyzed": len(city_trends),
-                "popular_searches_count": len(popular_searches),
-                "data_reliability": "high" if len(city_trends) > 5 else "medium"
+                "emerging_opportunities": identify_emerging_opportunities(top_opportunities)
             },
             
             "detailed_analyses": business_analyses if include_analysis else [],
             
             "report_metadata": {
+                "user_id": user_id,
                 "generation_timestamp": datetime.now().isoformat(),
                 "opportunities_count": len(top_opportunities),
-                "data_sources": ["Google Maps API", "Google Trends API", "Market Research", "Economic Indicators"]
+                "data_sources": ["Market Research", "Economic Indicators", "Consumer Trends"]
             }
         }
         
-        print(f"✅ City opportunities analysis completed for {city}")
+        # Step 5: Save to memory
+        memory_result = memory_agent.save_city_opportunities(
+            user_id=user_id,
+            city=city,
+            opportunities_data=city_ecosystem
+        )
+        
+        city_ecosystem["memory_saved"] = True
+        city_ecosystem["memory_info"] = memory_result
+        
+        print(f"✅ City opportunities analysis completed and saved to memory for user {user_id}")
         return city_ecosystem
         
     except Exception as e:
         print(f"❌ City opportunities analysis failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"City opportunities analysis failed: {str(e)}")
 
-@app.get("/api/raw-scraped-data")
-async def raw_scraped_data(
-    business_type: str = Query(None, description="Business type to search for"),
-    location: str = Query(None, description="Location to search in"),
-    data_type: str = Query("all", description="Type of data to retrieve: maps, trends, related, or all")
+# Keep the same persistence-chat and conversation-history endpoints from previous implementation
+# They will now automatically use the enhanced memory context
+
+@app.post("/api/persistence-chat")
+async def persistence_chat(
+    user_id: str = Query(..., description="Unique user identifier for memory"),
+    message: str = Query(..., description="User message"),
+    business_type: str = Query("", description="Business type for context"),
+    location: str = Query("", description="Location for context"),
+    clear_memory: bool = Query(False, description="Clear user memory before conversation")
 ):
     """
-    Get raw scraped data from SearchAPI for Google Maps and Google Trends.
-    Useful for direct data analysis and custom processing.
+    Chat endpoint with persistent memory across conversations.
+    Now includes comprehensive research data, city opportunities, and scraped data in context.
     """
     try:
-        results = {
-            "metadata": {
-                "timestamp": datetime.now().isoformat(),
-                "data_source": "SearchAPI",
-                "parameters": {
-                    "business_type": business_type,
-                    "location": location,
-                    "data_type": data_type
-                }
-            }
-        }
+        # Validate inputs
+        if not user_id or not message:
+            raise HTTPException(status_code=400, detail="user_id and message are required")
         
-        if data_type in ["maps", "all"] and business_type and location:
-            print(f"🗺️ Getting Google Maps data for {business_type} in {location}")
-            maps_data = searchapi_client.search_google_maps(f"{business_type} in {location}", location)
-            results["google_maps"] = {
-                "total_results": len(maps_data),
-                "data": maps_data[:50],  # Limit to first 50 results
-                "search_query": f"{business_type} in {location}"
-            }
+        # Clear memory if requested
+        if clear_memory:
+            result = memory_agent.clear_conversation_history(user_id)
+            return JSONResponse(content=result)
         
-        if data_type in ["trends", "all"] and business_type:
-            print(f"📈 Getting Google Trends data for {business_type}")
-            trends_data = searchapi_client.search_google_trends(business_type, "IN")
-            results["google_trends"] = {
-                "total_points": len(trends_data),
-                "data": trends_data,
-                "search_query": business_type
-            }
+        print(f"💬 Processing chat with full memory context for user {user_id}")
         
-        if data_type in ["related", "all"] and business_type:
-            print(f"🔍 Getting related searches for {business_type}")
-            related_data = searchapi_client.get_related_searches(business_type)
-            results["related_searches"] = {
-                "total_queries": len(related_data),
-                "data": related_data,
-                "search_query": business_type
-            }
+        # Process query with enhanced memory
+        response = memory_agent.process_chat_with_memory(
+            user_id=user_id,
+            message=message,
+            business_type=business_type,
+            location=location
+        )
         
-        if data_type == "all" and location and not business_type:
-            # Get general city trends
-            print(f"🏙️ Getting general trends for {location}")
-            city_trends = searchapi_client.search_google_trends(location, "IN")
-            results["city_trends"] = {
-                "total_points": len(city_trends),
-                "data": city_trends,
-                "search_query": location
-            }
-        
-        # Add data quality metrics
-        results["data_quality"] = {
-            "maps_data_quality": "high" if results.get("google_maps", {}).get("total_results", 0) > 10 else "medium",
-            "trends_data_quality": "high" if results.get("google_trends", {}).get("total_points", 0) > 5 else "medium",
-            "freshness": "real_time"
-        }
-        
-        print(f"✅ Raw scraped data retrieved successfully")
-        return results
+        return response
         
     except Exception as e:
-        print(f"❌ Raw scraped data retrieval failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Raw data retrieval failed: {str(e)}")
+        print(f"❌ Persistence chat failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(e)}")
+
+@app.get("/api/conversation-history")
+async def get_conversation_history(
+    user_id: str = Query(..., description="Unique user identifier")
+):
+    """
+    Get complete conversation history and research data for a user
+    """
+    try:
+        history_data = memory_agent.get_conversation_history(user_id)
+        return history_data
+        
+    except Exception as e:
+        print(f"❌ Failed to get conversation history: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get conversation history: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(
