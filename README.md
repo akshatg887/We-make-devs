@@ -1,4 +1,4 @@
-# 🧞‍♂️ BizGenie - AI-Powered Market Intelligence Platform
+#  BizGenie - AI-Powered Market Intelligence Platform
 
 > **Your AI Business Consultant** - Transform market research and business intelligence with the power of AI agents, real-time data analysis, and intelligent insights.
 
