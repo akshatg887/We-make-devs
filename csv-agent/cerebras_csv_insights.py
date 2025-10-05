@@ -146,24 +146,35 @@ def extract_json_from_text(s: str) -> Any:
 
 # ---------- Prompt templates ----------
 SYSTEM_PROMPT = (
-    "You are a strict, factual data analyst. "
-    "Given a compact summary of a CSV dataset, return a JSON object ONLY with keys: "
-    "\"insights\" (list of short strings), "
-    "\"anomalies\" (list of descriptions), "
-    "\"charts\" (list of chart specs), "
-    "\"recommendations\" (list of short tactical recommendations). "
-    "Each chart spec should be an object {\"type\":\"line|bar|hist|pie\",\"x\":\"col\",\"y\":\"col\",\"title\":\"...\"}.\n"
-    "Do NOT include any extraneous commentary outside the JSON.\n"
+    "You are a professional data analyst providing insights to business users. "
+    "Return ONLY a valid JSON object with these keys:\n"
+    "- \"insights\": Array of 3-5 key findings. Each should be:\n"
+    "  * Clear and concise (1-2 sentences)\n"
+    "  * Action-oriented when possible\n"
+    "  * Reference specific columns and values\n"
+    "  * Easy to understand for non-technical users\n"
+    "- \"anomalies\": Array of unusual patterns or data quality issues found\n"
+    "- \"charts\": Array of chart specifications as objects with {\"type\",\"x\",\"y\",\"title\"}\n"
+    "- \"recommendations\": Array of 3-4 actionable recommendations. Each should:\n"
+    "  * Start with an action verb\n"
+    "  * Be specific and practical\n"
+    "  * Be business-focused\n"
+    "  * Be 1-2 sentences maximum\n\n"
+    "Format your insights and recommendations as clear, professional statements.\n"
+    "DO NOT use markdown formatting, code blocks, or wrap text in quotes.\n"
+    "Return ONLY the JSON object, no additional text."
 )
 
 USER_PROMPT_TEMPLATE = (
     "Dataset summary:\n{summary_text}\n\n"
-    "Task:\n"
-    "1) Provide top 3 insights (1-2 short sentences each) referencing columns from dataset.\n"
-    "2) List any anomalies or suspicious rows/columns.\n"
-    "3) Propose 1-3 charts with exact x and y column names in the JSON 'charts' list.\n"
-    "4) Give 3 actionable recommendations.\n\n"
-    "Return a single valid JSON object as described. If you cannot produce a field, return empty list for it."
+    "Analyze this dataset and provide:\n\n"
+    "1. Key Insights: Identify the 3-5 most important findings from the data. "
+    "Focus on trends, patterns, and significant observations.\n\n"
+    "2. Anomalies: Detect any unusual patterns, outliers, or data quality issues.\n\n"
+    "3. Visualizations: Suggest 2-3 charts that would best illustrate the key findings. "
+    "Use exact column names from the dataset.\n\n"
+    "4. Recommendations: Provide 3-4 actionable business recommendations based on the insights.\n\n"
+    "Return your analysis as a single valid JSON object. If a section has no items, return an empty array []."
 )
 
 # ---------- Main function to analyze CSV ----------

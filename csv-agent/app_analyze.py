@@ -90,7 +90,7 @@ def compact_summary(df: pd.DataFrame, max_sample_rows: int = 5) -> Dict[str, Any
     date_cols: List[str] = []
     for c in non_num.columns:
         try:
-            parsed = pd.to_datetime(df[c], errors="coerce")
+            parsed = pd.to_datetime(df[c], errors="coerce", format='mixed')
             if parsed.notna().sum() >= max(1, 0.5 * len(df)):
                 date_cols.append(c)
         except Exception:
@@ -257,11 +257,55 @@ async def upload_csv(file: UploadFile = File(...)):
     if parsed is None:
         return JSONResponse(status_code=500, content={"error":"Could not parse JSON from LLM", "raw_output": assistant_text[:5000]})
 
+    # Prepare chart data for frontend rendering
+    chart_data = []
+    for chart_spec in parsed.get("charts", []):
+        try:
+            chart_type = chart_spec.get("type", "bar")
+            x_col = chart_spec.get("x")
+            y_col = chart_spec.get("y")
+            
+            if x_col and y_col and x_col in df.columns and y_col in df.columns:
+                # Prepare data based on chart type
+                if chart_type in ["bar", "line"]:
+                    # Aggregate data by x column
+                    if df[x_col].dtype in ['object', 'string']:
+                        # Categorical x-axis
+                        grouped = df.groupby(x_col)[y_col].sum().reset_index()
+                        data = grouped.to_dict('records')
+                    else:
+                        # Numeric x-axis - take all points
+                        data = df[[x_col, y_col]].dropna().to_dict('records')
+                    
+                    chart_data.append({
+                        **chart_spec,
+                        "data": data[:50]  # Limit to 50 points for performance
+                    })
+                elif chart_type == "pie":
+                    # Pie chart - aggregate by x column
+                    grouped = df.groupby(x_col)[y_col].sum().reset_index()
+                    grouped.columns = ['name', 'value']
+                    chart_data.append({
+                        **chart_spec,
+                        "data": grouped.to_dict('records')[:10]  # Limit to 10 slices
+                    })
+                elif chart_type == "hist":
+                    # Histogram - just send the y values
+                    values = df[y_col].dropna().tolist()[:500]  # Limit data points
+                    chart_data.append({
+                        **chart_spec,
+                        "data": [{"value": v} for v in values]
+                    })
+        except Exception as e:
+            print(f"Error preparing chart data: {e}")
+            continue
+
     out = {
         "session_id": session_id,
         "insights": parsed.get("insights", []),
         "anomalies": parsed.get("anomalies", []),
         "charts": parsed.get("charts", []),
+        "chart_data": chart_data,  # New field with actual data
         "recommendations": parsed.get("recommendations", []),
         "raw_model_output": assistant_text
     }
@@ -288,15 +332,28 @@ async def chat(session_id: str = Form(...), user_message: str = Form(...)):
 
     # Optional guidance to the LLM
     system_prompt = (
-        "You are a knowledgeable data analyst. "
-        "You are a strict, factual data analyst. "
-        "Given a CSV dataset summary, return ONLY a JSON object with keys: "
-        "\"answer\" (Complete descriptive and detailed explanation, unless prompted otherwise by the user.), "
-        "\"followUp\" (followup questions that user could be interested in next.), "
-        "The user may ask questions about the dataset, insights, anomalies, charts, or recommendations. "
-        "You can provide explanations, context, or clarifications. "
-        "Use previous conversation and dataset summary stored in context. "
-        "Output can be in text, JSON, or a mix depending on what the user asks."
+        "You are a professional data analyst providing insights to business users. "
+        "Return ONLY a valid JSON object with these keys:\n"
+        "- \"answer\": A clear, professional response formatted with:\n"
+        "  * Use bullet points (start with '-' or '•') for lists\n"
+        "  * Use numbered lists (1., 2., 3.) for sequential steps\n"
+        "  * Use short, clear sentences\n"
+        "  * Break information into digestible chunks\n"
+        "  * Avoid long paragraphs - max 2-3 sentences per paragraph\n"
+        "  * Use section headers followed by ':' when appropriate\n"
+        "  * DO NOT use markdown formatting (no **, `, or code blocks)\n"
+        "  * DO NOT wrap response in quotes\n"
+        "  * Make it conversational and easy to read\n"
+        "- \"followUp\": Array of 2-3 relevant follow-up questions\n\n"
+        "Format example for answer:\n"
+        "Key Findings:\n"
+        "- First important insight\n"
+        "- Second important insight\n"
+        "- Third important insight\n\n"
+        "Recommendations:\n"
+        "1. First recommendation with brief explanation\n"
+        "2. Second recommendation with brief explanation\n\n"
+        "If the question is unrelated to the dataset, politely redirect to dataset-related queries."
     )
 
 
