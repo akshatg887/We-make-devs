@@ -1,16 +1,26 @@
-import React from 'react'
-
+import React from "react";
+import Hero from "../components/Hero";
+import Navbar from "../components/Navbar";
+import Demo from "../components/Demo";
+import Introductory from "../components/Introductory";
+import "./globals.css";
+import Sponsors from "../components/Sponsors";
+import Features from "../components/Features";
+import Blob from "./landing/components/Blob";
 const page = () => {
   return (
-    <div className='relative'>
-      <nav className='flex bg-amber-600 justify-center items-center h-8  text-white'>
-
-      </nav>
-      <main className='flex justify-center items-center bg-amber-200 h-[100vh]'>
-
+    <>
+      <Blob color="#6894f2" />
+      <Blob color="#6894f2" />
+      <main className="relative z-10">
+        <Navbar />
+        <Hero />
+        <Introductory />
+        <Features />
+        <Sponsors />
       </main>
-    </div>
-  )
-}
+    </>
+  );
+};
 
-export default page
+export default page;
